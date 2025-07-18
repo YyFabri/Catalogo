@@ -85,7 +85,7 @@ export default function ProtectedAdminLayout({ children }: { children: React.Rea
                         <SidebarMenuButton onClick={handleLogout} tooltip="Logout">
                             <LogOut/>
                             Logout
-                        </SidebarMenuButton>
+                        </Button>
                     </SidebarMenuItem>
                 </SidebarMenu>
             </div>

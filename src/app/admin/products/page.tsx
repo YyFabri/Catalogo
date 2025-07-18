@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -38,7 +39,7 @@ export default function AdminProductsPage() {
   };
   
   const TableSkeleton = () => (
-     <div className="space-y-2">
+     <div className="space-y-2 p-4">
       <Skeleton className="h-12 w-full" />
       <Skeleton className="h-12 w-full" />
       <Skeleton className="h-12 w-full" />
@@ -73,6 +74,7 @@ export default function AdminProductsPage() {
                 <TableRow>
                   <TableHead className="w-[80px]">Image</TableHead>
                   <TableHead>Name</TableHead>
+                  <TableHead>Category</TableHead>
                   <TableHead>Stock</TableHead>
                   <TableHead>Price</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -81,7 +83,7 @@ export default function AdminProductsPage() {
               <TableBody>
                 {products.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center h-24">
+                    <TableCell colSpan={6} className="text-center h-24">
                       No products found.
                     </TableCell>
                   </TableRow>
@@ -99,6 +101,9 @@ export default function AdminProductsPage() {
                         />
                       </TableCell>
                       <TableCell className="font-medium">{product.name}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">{product.category}</Badge>
+                      </TableCell>
                       <TableCell>
                         <Badge variant={product.inStock ? 'outline' : 'destructive'} className={product.inStock ? "border-green-600 text-green-600" : ""}>
                           {product.inStock ? 'In Stock' : 'Out of Stock'}
