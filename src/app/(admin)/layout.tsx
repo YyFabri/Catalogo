@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Sidebar, SidebarProvider, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { LayoutDashboard, Package, LogOut, Home } from 'lucide-react';
 import Link from 'next/link';
+import AdminHeader from '@/components/admin-header';
 
 export default function ProtectedAdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -15,7 +16,6 @@ export default function ProtectedAdminLayout({ children }: { children: React.Rea
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // This effect runs only on the client
     if (typeof window !== 'undefined') {
       const isAuthenticated = localStorage.getItem('is_authenticated') === 'true';
       if (!isAuthenticated) {
@@ -30,7 +30,6 @@ export default function ProtectedAdminLayout({ children }: { children: React.Rea
    const handleLogout = () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('is_authenticated');
-      // Dispatch a storage event to notify other tabs/windows
       window.dispatchEvent(new Event('storage'));
       router.push('/login');
     }
@@ -51,7 +50,7 @@ export default function ProtectedAdminLayout({ children }: { children: React.Rea
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen bg-muted/40">
+      <div className="flex min-h-screen w-full flex-col bg-muted/40">
         <Sidebar className="bg-background border-r hidden md:flex" collapsible="icon">
             <SidebarMenu className="flex-1 p-2">
                  <SidebarMenuItem>
@@ -90,9 +89,12 @@ export default function ProtectedAdminLayout({ children }: { children: React.Rea
                 </SidebarMenu>
             </div>
         </Sidebar>
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+        <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
+          <AdminHeader onLogout={handleLogout} />
+          <main className="flex-1 p-4 sm:px-6 sm:py-0 md:gap-8">
             {children}
-        </main>
+          </main>
+        </div>
       </div>
     </SidebarProvider>
   );
