@@ -3,12 +3,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { LockKeyhole } from 'lucide-react';
+import { LockKeyhole, ArrowLeft } from 'lucide-react';
 
 export default function LoginPage() {
   const [password, setPassword] = useState('');
@@ -53,7 +54,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
       <Card className="w-full max-w-sm">
         <form onSubmit={handleLogin}>
           <CardHeader className="text-center">
@@ -84,6 +85,14 @@ export default function LoginPage() {
           </CardFooter>
         </form>
       </Card>
+      <div className="mt-4 text-center">
+        <Button variant="link" asChild className="text-muted-foreground">
+          <Link href="/">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Volver al catálogo
+          </Link>
+        </Button>
+      </div>
     </div>
   );
 }
