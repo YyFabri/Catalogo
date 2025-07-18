@@ -83,45 +83,45 @@ export default function AdminProductsPage() {
   return (
     <>
       <div className="flex min-h-screen w-full flex-col bg-muted/40 p-4 sm:p-6 md:p-8">
-            <main className="grid flex-1 items-start gap-4">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex-1">
-                  <h1 className="text-2xl font-bold">Gestión de Productos</h1>
-                  <p className="text-muted-foreground">Visualiza, añade, edita o elimina tus productos.</p>
-                </div>
-                <div className="flex items-center gap-2">
-                   <Button asChild>
-                    <Link href="/admin/products/new">
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Añadir Producto
+            <header className="mb-4 flex items-center justify-end gap-2">
+                 <Button asChild variant="outline">
+                    <Link href="/">
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Volver al Catálogo
                     </Link>
-                    </Button>
-                    <Button asChild variant="outline">
-                        <Link href="/">
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Volver al Catálogo
-                        </Link>
-                    </Button>
-                    <Button variant="destructive" onClick={handleLogout}>
-                        <LogOut className="mr-2 h-4 w-4" />
-                        Cerrar Sesión
-                    </Button>
-                </div>
-              </div>
+                </Button>
+                <Button variant="destructive" onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Cerrar Sesión
+                </Button>
+            </header>
+            <main className="grid flex-1 items-start gap-4">
               <Card>
                 <CardHeader>
-                    <div className="w-full sm:max-w-xs">
-                        <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                        <Input
-                            type="search"
-                            placeholder="Buscar por producto..."
-                            className="w-full pl-10"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <CardTitle>Gestión de Productos</CardTitle>
+                            <CardDescription>Visualiza, añade, edita o elimina tus productos.</CardDescription>
                         </div>
-                     </div>
+                        <div className="flex items-center gap-2">
+                            <div className="relative w-full sm:max-w-xs">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                <Input
+                                    type="search"
+                                    placeholder="Buscar por producto..."
+                                    className="w-full pl-10"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                            <Button asChild>
+                                <Link href="/admin/products/new">
+                                    <PlusCircle className="mr-2 h-4 w-4" />
+                                    Añadir Producto
+                                </Link>
+                            </Button>
+                        </div>
+                    </div>
                 </CardHeader>
                 <CardContent>
                   <div className="border rounded-md">
