@@ -1,11 +1,14 @@
 'use client';
+import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import type { Product } from '@/lib/types';
 import Header from '@/components/header';
 import { useProductStore } from '@/hooks/use-product-store';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Search } from 'lucide-react';
 
 
 const ProductCardSkeleton = () => (
@@ -34,6 +37,7 @@ const ProductCard = ({ product }: { product: Product }) => (
         className="object-cover"
         data-ai-hint={product.imageHint}
       />
+       <Badge variant="secondary" className="absolute top-2 right-2">{product.category}</Badge>
     </div>
     <CardHeader>
       <CardTitle className="text-xl">{product.name}</CardTitle>
@@ -51,13 +55,24 @@ const ProductCard = ({ product }: { product: Product }) => (
 
 export default function Home() {
   const { products, isLoading } = useProductStore();
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredProducts = useMemo(() => {
+    if (!searchTerm) return products;
+    return products.filter(
+      (p) =>
+        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.category?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [products, searchTerm]);
+
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-1">
         <section className="container mx-auto px-4 py-8 md:py-12">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl font-headline">
               Our Catalog
             </h1>
@@ -65,15 +80,35 @@ export default function Home() {
               Browse our curated collection of high-quality products.
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {isLoading ? (
-              Array.from({ length: 8 }).map((_, i) => <ProductCardSkeleton key={i} />)
-            ) : (
-              products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))
-            )}
+
+          <div className="mb-12 max-w-lg mx-auto">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search by product or category..."
+                className="w-full pl-10"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
+
+          {isLoading ? (
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {Array.from({ length: 8 }).map((_, i) => <ProductCardSkeleton key={i} />)}
+             </div>
+          ) : filteredProducts.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {filteredProducts.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                ))}
+            </div>
+          ) : (
+             <div className="text-center py-16">
+                <p className="text-xl text-muted-foreground">No products found for "{searchTerm}".</p>
+            </div>
+          )}
         </section>
       </main>
       <footer className="bg-muted py-6">

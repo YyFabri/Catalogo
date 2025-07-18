@@ -16,6 +16,7 @@ const formSchema = z.object({
   description: z.string().min(10, { message: 'Description must be at least 10 characters long.' }),
   price: z.coerce.number().positive({ message: 'Price must be a positive number.' }),
   imageUrl: z.string().url({ message: 'Please enter a valid image URL.' }),
+  category: z.string().min(2, { message: 'Category must be at least 2 characters long.' }),
   inStock: z.boolean(),
 });
 
@@ -23,7 +24,7 @@ type ProductFormValues = z.infer<typeof formSchema>;
 
 interface ProductFormProps {
   initialData?: Product | null;
-  onSubmit: (data: Omit<Product, 'id'>) => void;
+  onSubmit: (data: Omit<Product, 'id'| 'imageHint'>) => void;
 }
 
 export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
@@ -34,7 +35,8 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
       description: initialData?.description || '',
       price: initialData?.price || 0,
       imageUrl: initialData?.imageUrl || '',
-      inStock: initialData?.inStock || true,
+      category: initialData?.category || '',
+      inStock: initialData?.inStock ?? true,
     },
   });
 
@@ -97,6 +99,20 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
                 />
                  <FormField
                     control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Category</FormLabel>
+                        <FormControl>
+                            <Input placeholder="e.g. 'Toys'" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+             </div>
+             <FormField
+                    control={form.control}
                     name="imageUrl"
                     render={({ field }) => (
                         <FormItem>
@@ -108,7 +124,6 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
                         </FormItem>
                     )}
                     />
-             </div>
             <FormField
               control={form.control}
               name="inStock"
