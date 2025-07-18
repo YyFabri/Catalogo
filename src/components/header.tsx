@@ -3,33 +3,25 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ShoppingBag, User } from 'lucide-react';
+import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 
 const Header = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const router = useRouter();
+  const [user, setUser] = useState<FirebaseUser | null>(null);
   const pathname = usePathname();
 
   useEffect(() => {
-    const checkAuth = () => {
-      // Ensure this runs only on the client
-      if (typeof window !== 'undefined') {
-        const authStatus = localStorage.getItem('is_authenticated') === 'true';
-        setIsAuthenticated(authStatus);
-      }
-    };
-    
-    checkAuth();
-
-    // Listen for storage changes to update auth status across tabs
-    window.addEventListener('storage', checkAuth);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
     
     return () => {
-      window.removeEventListener('storage', checkAuth);
+      unsubscribe();
     };
-  }, [pathname]); // Rerun on pathname change if needed, though storage event is more robust
+  }, []);
   
   if (pathname.startsWith('/admin') || pathname.startsWith('/login')) {
       return null;
@@ -44,7 +36,7 @@ const Header = () => {
         </Link>
         <div className="flex flex-1 items-center justify-end space-x-4">
           <nav className="flex items-center space-x-2">
-            {isAuthenticated ? (
+            {user ? (
                <Button asChild variant="secondary">
                 <Link href="/admin">
                   <User className="mr-2 h-4 w-4" />

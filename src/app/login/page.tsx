@@ -9,49 +9,57 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { LockKeyhole, ArrowLeft } from 'lucide-react';
+import { LockKeyhole, ArrowLeft, LogIn } from 'lucide-react';
+import { auth } from '@/lib/firebase';
+import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
 
 export default function LoginPage() {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
-    // This effect should only run on the client
-    if (typeof window !== 'undefined') {
-      const isAuthenticated = localStorage.getItem('is_authenticated') === 'true';
-      if (isAuthenticated) {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
         router.replace('/admin');
+      } else {
+        setLoading(false);
       }
-    }
+    });
+    return () => unsubscribe();
   }, [router]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    // Hardcoded password for simplicity as requested
-    if (password === 'password123') {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
       toast({
         title: '¡Éxito!',
         description: 'Has iniciado sesión correctamente.',
       });
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('is_authenticated', 'true');
-        // Dispatch a storage event to notify other tabs/windows (like the header)
-        window.dispatchEvent(new Event('storage'));
-      }
       router.push('/admin');
-    } else {
-      setError('Contraseña inválida. Por favor, inténtalo de nuevo.');
+    } catch (error: any) {
+      setError('Credenciales inválidas. Por favor, inténtalo de nuevo.');
       toast({
         variant: 'destructive',
         title: 'Fallo de Inicio de Sesión',
-        description: 'Contraseña inválida. Por favor, inténtalo de nuevo.',
+        description: 'El correo o la contraseña son incorrectos.',
       });
     }
   };
+
+  if (loading) {
+    return (
+        <div className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
+            <p>Verificando sesión...</p>
+        </div>
+    )
+  }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
@@ -62,9 +70,20 @@ export default function LoginPage() {
               <LockKeyhole className="w-8 h-8 text-primary" />
             </div>
             <CardTitle className="text-2xl font-bold">Acceso de Administrador</CardTitle>
-            <CardDescription>Ingresa la contraseña para acceder al panel de administrador.</CardDescription>
+            <CardDescription>Ingresa tus credenciales para acceder al panel de administrador.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Correo Electrónico</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@ejemplo.com"
+                required
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="password">Contraseña</Label>
               <Input
@@ -80,6 +99,7 @@ export default function LoginPage() {
           </CardContent>
           <CardFooter>
             <Button type="submit" className="w-full">
+              <LogIn className="mr-2 h-4 w-4" />
               Iniciar Sesión
             </Button>
           </CardFooter>

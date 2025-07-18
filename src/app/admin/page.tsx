@@ -24,8 +24,9 @@ import type { Product } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
 import { useState, useMemo, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { db } from '@/lib/firebase';
+import { db, auth } from '@/lib/firebase';
 import { collection, onSnapshot, doc, deleteDoc, query, orderBy } from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
 
 
 export default function AdminProductsPage() {
@@ -54,15 +55,20 @@ export default function AdminProductsPage() {
   }, []);
 
 
-  const handleLogout = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('is_authenticated');
-      window.dispatchEvent(new Event('storage'));
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
       toast({
         title: 'Sesión Cerrada',
         description: 'Has cerrado sesión correctamente.',
       });
       router.push('/login');
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'No se pudo cerrar la sesión.',
+      });
     }
   };
 
