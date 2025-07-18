@@ -28,7 +28,7 @@ const groupByCategory = (products: Product[]) => {
 };
 
 const EditableProductRow = ({ product }: { product: Product }) => {
-  const { updateProduct, deleteProduct } = useProductStore.getState();
+  const { updateProduct, deleteProduct } = useProductStore();
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
   const handleFieldChange = (field: keyof Product, value: string | number | boolean) => {
