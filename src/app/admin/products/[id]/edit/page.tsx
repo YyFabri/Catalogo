@@ -22,8 +22,8 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
     if (!isLoading && !product) {
        toast({
         variant: "destructive",
-        title: "Product not found",
-        description: "The product you are trying to edit does not exist.",
+        title: "Producto no encontrado",
+        description: "El producto que intentas editar no existe.",
       });
       router.push('/admin');
     }
@@ -33,8 +33,8 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
     updateProduct(params.id, data);
     
     toast({
-      title: 'Product Updated!',
-      description: `"${data.name}" has been saved.`,
+      title: '¡Producto Actualizado!',
+      description: `"${data.name}" ha sido guardado.`,
     });
     router.push('/admin');
   };
@@ -84,7 +84,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
          <Button asChild variant="outline" size="sm">
             <Link href="/admin">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Products
+                Volver a Productos
             </Link>
          </Button>
       </div>

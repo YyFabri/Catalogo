@@ -5,11 +5,11 @@ import { useEffect, useState as useReactState } from 'react';
 import type { Product } from '@/lib/types';
 
 const initialProducts: Product[] = [
-    { id: '1', name: 'Plush Teddy Bear', description: 'A cuddly companion for all ages.', price: 19.99, imageUrl: 'https://placehold.co/600x400.png', inStock: true, imageHint: 'teddy bear', category: 'Toys' },
-    { id: '2', name: 'Ceramic Coffee Mug', description: 'A beautiful mug for your morning coffee.', price: 12.50, imageUrl: 'https://placehold.co/600x400.png', inStock: true, imageHint: 'coffee mug', category: 'Home Goods' },
-    { id: '3', name: 'Leather-bound Journal', description: 'For your thoughts, dreams, and plans.', price: 25.00, imageUrl: 'https://placehold.co/600x400.png', inStock: false, imageHint: 'leather journal', category: 'Stationery' },
-    { id: '4', name: 'Scented Soy Candle', description: 'Relaxing lavender and vanilla scent.', price: 18.00, imageUrl: 'https://placehold.co/600x400.png', inStock: true, imageHint: 'scented candle', category: 'Home Goods' },
-    { id: '5', name: 'Wooden Puzzle Box', description: 'A challenging puzzle for sharp minds.', price: 35.50, imageUrl: 'https://placehold.co/600x400.png', inStock: true, imageHint: 'puzzle box', category: 'Toys' },
+    { id: '1', name: 'Oso de Peluche', description: 'Un compañero tierno para todas las edades.', price: 19.99, imageUrl: 'https://placehold.co/600x400.png', inStock: true, imageHint: 'teddy bear', category: 'Juguetes' },
+    { id: '2', name: 'Taza de Café de Cerámica', description: 'Una taza hermosa para tu café mañanero.', price: 12.50, imageUrl: 'https://placehold.co/600x400.png', inStock: true, imageHint: 'coffee mug', category: 'Hogar' },
+    { id: '3', name: 'Diario de Cuero', description: 'Para tus pensamientos, sueños y planes.', price: 25.00, imageUrl: 'https://placehold.co/600x400.png', inStock: false, imageHint: 'leather journal', category: 'Papelería' },
+    { id: '4', name: 'Vela de Soja Perfumada', description: 'Relajante aroma a lavanda y vainilla.', price: 18.00, imageUrl: 'https://placehold.co/600x400.png', inStock: true, imageHint: 'scented candle', category: 'Hogar' },
+    { id: '5', name: 'Caja de Rompecabezas de Madera', description: 'Un rompecabezas desafiante para mentes agudas.', price: 35.50, imageUrl: 'https://placehold.co/600x400.png', inStock: true, imageHint: 'puzzle box', category: 'Juguetes' },
 ];
 
 const STORAGE_KEY = 'stockwise_products';
@@ -41,7 +41,7 @@ const useProductStoreBase = create<ProductState>((set, get) => ({
       price: productData.price,
       imageUrl: productData.imageUrl,
       inStock: productData.inStock,
-      category: productData.category || 'Uncategorized',
+      category: productData.category || 'Sin categoría',
       imageHint: productData.name.split(' ').slice(0, 2).join(' ').toLowerCase(),
     };
     const updatedProducts = [...get().products, newProduct];

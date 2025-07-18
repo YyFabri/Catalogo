@@ -44,8 +44,8 @@ export default function AdminProductsPage() {
     if (!productToDelete) return;
     deleteProduct(productToDelete.id);
     toast({
-      title: 'Product Deleted',
-      description: `"${productToDelete.name}" has been removed.`,
+      title: 'Producto Eliminado',
+      description: `"${productToDelete.name}" ha sido eliminado.`,
     });
     setProductToDelete(null);
   };
@@ -53,8 +53,8 @@ export default function AdminProductsPage() {
   const handleStockChange = (product: Product, inStock: boolean) => {
     updateProduct(product.id, { inStock });
      toast({
-      title: 'Stock Updated',
-      description: `"${product.name}" is now ${inStock ? 'in stock' : 'out of stock'}.`,
+      title: 'Stock Actualizado',
+      description: `"${product.name}" ahora está ${inStock ? 'en stock' : 'sin stock'}.`,
     });
   };
   
@@ -80,15 +80,15 @@ export default function AdminProductsPage() {
         <CardHeader>
           <div className="flex items-center justify-between gap-4">
             <div className="flex-1">
-              <CardTitle>Product Management</CardTitle>
-              <CardDescription>View, add, edit, or delete your products.</CardDescription>
+              <CardTitle>Gestión de Productos</CardTitle>
+              <CardDescription>Visualiza, añade, edita o elimina tus productos.</CardDescription>
             </div>
              <div className="w-full max-w-md">
                 <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                     type="search"
-                    placeholder="Search by product or category..."
+                    placeholder="Buscar por producto o categoría..."
                     className="w-full pl-10"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -98,7 +98,7 @@ export default function AdminProductsPage() {
             <Button asChild>
               <Link href="/admin/products/new">
                 <PlusCircle className="mr-2 h-4 w-4" />
-                Add Product
+                Añadir Producto
               </Link>
             </Button>
           </div>
@@ -111,19 +111,19 @@ export default function AdminProductsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[80px]">Image</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>In Stock</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="w-[80px]">Imagen</TableHead>
+                  <TableHead>Nombre</TableHead>
+                  <TableHead>Categoría</TableHead>
+                  <TableHead>Precio</TableHead>
+                  <TableHead>En Stock</TableHead>
+                  <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredProducts.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="text-center h-24">
-                       {products.length === 0 ? "No products found." : `No products found for "${searchTerm}".`}
+                       {products.length === 0 ? "No se encontraron productos." : `No se encontraron productos para "${searchTerm}".`}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -148,19 +148,19 @@ export default function AdminProductsPage() {
                          <Switch
                             checked={product.inStock}
                             onCheckedChange={(checked) => handleStockChange(product, checked)}
-                            aria-label="In stock status"
+                            aria-label="Estado de stock"
                         />
                       </TableCell>
                       <TableCell className="text-right">
                         <Button asChild variant="ghost" size="icon">
                           <Link href={`/admin/products/${product.id}/edit`}>
                             <Edit className="h-4 w-4" />
-                             <span className="sr-only">Edit</span>
+                             <span className="sr-only">Editar</span>
                           </Link>
                         </Button>
                         <Button variant="ghost" size="icon" onClick={() => setProductToDelete(product)}>
                           <Trash2 className="h-4 w-4 text-destructive" />
-                          <span className="sr-only">Delete</span>
+                          <span className="sr-only">Eliminar</span>
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -176,16 +176,16 @@ export default function AdminProductsPage() {
       <AlertDialog open={!!productToDelete} onOpenChange={(open) => !open && setProductToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>¿Estás absolutamente seguro?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the product
+              Esta acción no se puede deshacer. Esto eliminará permanentemente el producto
               "{productToDelete?.name}".
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
-              Delete
+              Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

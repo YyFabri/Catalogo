@@ -34,8 +34,8 @@ export default function LoginPage() {
     // Hardcoded password for simplicity as requested
     if (password === 'password123') {
       toast({
-        title: 'Success!',
-        description: 'Logged in successfully.',
+        title: '¡Éxito!',
+        description: 'Has iniciado sesión correctamente.',
       });
       if (typeof window !== 'undefined') {
         localStorage.setItem('is_authenticated', 'true');
@@ -44,11 +44,11 @@ export default function LoginPage() {
       }
       router.push('/admin');
     } else {
-      setError('Invalid password. Please try again.');
+      setError('Contraseña inválida. Por favor, inténtalo de nuevo.');
       toast({
         variant: 'destructive',
-        title: 'Login Failed',
-        description: 'Invalid password. Please try again.',
+        title: 'Fallo de Inicio de Sesión',
+        description: 'Contraseña inválida. Por favor, inténtalo de nuevo.',
       });
     }
   };
@@ -61,12 +61,12 @@ export default function LoginPage() {
             <div className="mx-auto bg-primary/20 p-3 rounded-full w-fit mb-4">
               <LockKeyhole className="w-8 h-8 text-primary" />
             </div>
-            <CardTitle className="text-2xl font-bold">Admin Access</CardTitle>
-            <CardDescription>Enter the password to access the admin panel.</CardDescription>
+            <CardTitle className="text-2xl font-bold">Acceso de Administrador</CardTitle>
+            <CardDescription>Ingresa la contraseña para acceder al panel de administrador.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Contraseña</Label>
               <Input
                 id="password"
                 type="password"
@@ -80,7 +80,7 @@ export default function LoginPage() {
           </CardContent>
           <CardFooter>
             <Button type="submit" className="w-full">
-              Login
+              Iniciar Sesión
             </Button>
           </CardFooter>
         </form>

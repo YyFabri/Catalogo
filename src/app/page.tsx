@@ -47,7 +47,7 @@ const ProductCard = ({ product }: { product: Product }) => (
          <p className="text-muted-foreground text-2xl font-semibold mb-4">${product.price.toFixed(2)}</p>
       </div>
       <Badge variant={product.inStock ? 'default' : 'destructive'} className="self-start bg-accent text-accent-foreground">
-        {product.inStock ? 'In Stock' : 'Out of Stock'}
+        {product.inStock ? 'En Stock' : 'Sin Stock'}
       </Badge>
     </CardContent>
   </Card>
@@ -74,10 +74,10 @@ export default function Home() {
         <section className="container mx-auto px-4 py-8 md:py-12">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl font-headline">
-              Our Catalog
+              Nuestro Catálogo
             </h1>
             <p className="mt-3 max-w-2xl mx-auto text-lg text-muted-foreground sm:text-xl">
-              Browse our curated collection of high-quality products.
+              Explora nuestra cuidada colección de productos de alta calidad.
             </p>
           </div>
 
@@ -86,7 +86,7 @@ export default function Home() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Search by product or category..."
+                placeholder="Buscar por producto o categoría..."
                 className="w-full pl-10"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -106,14 +106,14 @@ export default function Home() {
             </div>
           ) : (
              <div className="text-center py-16">
-                <p className="text-xl text-muted-foreground">No products found for "{searchTerm}".</p>
+                <p className="text-xl text-muted-foreground">No se encontraron productos para "{searchTerm}".</p>
             </div>
           )}
         </section>
       </main>
       <footer className="bg-muted py-6">
         <div className="container mx-auto text-center text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} StockWise Catalog. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Catálogo StockWise. Todos los derechos reservados.</p>
         </div>
       </footer>
     </div>

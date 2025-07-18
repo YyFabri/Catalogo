@@ -15,17 +15,17 @@ function AdminHeader({ onLogout }: { onLogout: () => void }) {
         <Link href="/" className="flex items-center gap-2 mr-6 font-bold text-lg">
           <ShoppingBag className="h-6 w-6 text-primary" style={{color: 'hsl(var(--accent))'}} />
           <span className="font-bold">StockWise</span>
-          <span className="text-sm font-light text-muted-foreground ml-2">Admin Panel</span>
+          <span className="text-sm font-light text-muted-foreground ml-2">Panel de Admin</span>
         </Link>
         <div className="flex flex-1 items-center justify-end space-x-4">
            <Button asChild variant="secondary" size="sm">
               <Link href="/">
-                Back to Site
+                Volver al Sitio
               </Link>
             </Button>
            <Button onClick={onLogout} variant="outline" size="sm">
             <LogOut className="mr-2 h-4 w-4" />
-            Logout
+            Cerrar Sesión
           </Button>
         </div>
       </div>

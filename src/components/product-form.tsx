@@ -12,11 +12,11 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import type { Product } from '@/lib/types';
 
 const formSchema = z.object({
-  name: z.string().min(2, { message: 'Name must be at least 2 characters long.' }),
-  description: z.string().min(10, { message: 'Description must be at least 10 characters long.' }),
-  price: z.coerce.number().positive({ message: 'Price must be a positive number.' }),
-  imageUrl: z.string().url({ message: 'Please enter a valid image URL.' }),
-  category: z.string().min(2, { message: 'Category must be at least 2 characters long.' }),
+  name: z.string().min(2, { message: 'El nombre debe tener al menos 2 caracteres.' }),
+  description: z.string().min(10, { message: 'La descripción debe tener al menos 10 caracteres.' }),
+  price: z.coerce.number().positive({ message: 'El precio debe ser un número positivo.' }),
+  imageUrl: z.string().url({ message: 'Por favor, introduce una URL de imagen válida.' }),
+  category: z.string().min(2, { message: 'La categoría debe tener al menos 2 caracteres.' }),
   inStock: z.boolean(),
 });
 
@@ -49,9 +49,9 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{isEditing ? 'Edit Product' : 'Add New Product'}</CardTitle>
+        <CardTitle>{isEditing ? 'Editar Producto' : 'Añadir Nuevo Producto'}</CardTitle>
         <CardDescription>
-          {isEditing ? 'Update the details of your product.' : 'Fill out the form to add a new product to your catalog.'}
+          {isEditing ? 'Actualiza los detalles de tu producto.' : 'Completa el formulario para añadir un nuevo producto a tu catálogo.'}
         </CardDescription>
       </CardHeader>
       <Form {...form}>
@@ -62,9 +62,9 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Product Name</FormLabel>
+                  <FormLabel>Nombre del Producto</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. 'Cozy Knit Sweater'" {...field} />
+                    <Input placeholder="Ej: 'Buzo de punto acogedor'" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -75,9 +75,9 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>Descripción</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Describe the product..." {...field} />
+                    <Textarea placeholder="Describe el producto..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -89,7 +89,7 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
                   name="price"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Price ($)</FormLabel>
+                      <FormLabel>Precio ($)</FormLabel>
                       <FormControl>
                         <Input type="number" step="0.01" placeholder="29.99" {...field} />
                       </FormControl>
@@ -102,9 +102,9 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
                     name="category"
                     render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Category</FormLabel>
+                        <FormLabel>Categoría</FormLabel>
                         <FormControl>
-                            <Input placeholder="e.g. 'Toys'" {...field} />
+                            <Input placeholder="Ej: 'Juguetes'" {...field} />
                         </FormControl>
                         <FormMessage />
                         </FormItem>
@@ -116,7 +116,7 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
                     name="imageUrl"
                     render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Image URL</FormLabel>
+                        <FormLabel>URL de la Imagen</FormLabel>
                         <FormControl>
                             <Input placeholder="https://placehold.co/600x400.png" {...field} />
                         </FormControl>
@@ -130,8 +130,8 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                     <div>
-                        <FormLabel>In Stock</FormLabel>
-                        <FormDescription>Is this product currently available for purchase?</FormDescription>
+                        <FormLabel>En Stock</FormLabel>
+                        <FormDescription>¿Está este producto disponible para la compra?</FormDescription>
                     </div>
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -142,7 +142,7 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
           </CardContent>
           <CardFooter>
             <Button type="submit" disabled={form.formState.isSubmitting}>
-              {isEditing ? 'Save Changes' : 'Create Product'}
+              {isEditing ? 'Guardar Cambios' : 'Crear Producto'}
             </Button>
           </CardFooter>
         </form>

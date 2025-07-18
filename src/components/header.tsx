@@ -54,7 +54,7 @@ const Header = () => {
             ) : (
               <Button asChild variant="ghost">
                 <Link href="/login">
-                  Admin Login
+                  Login Admin
                 </Link>
               </Button>
             )}

@@ -18,8 +18,8 @@ export default function NewProductPage() {
     addProduct(data);
     
     toast({
-      title: 'Product Created!',
-      description: `"${data.name}" has been added to the catalog.`,
+      title: '¡Producto Creado!',
+      description: `"${data.name}" ha sido añadido al catálogo.`,
     });
     router.push('/admin');
   };
@@ -30,7 +30,7 @@ export default function NewProductPage() {
          <Button asChild variant="outline" size="sm">
             <Link href="/admin">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Products
+                Volver a Productos
             </Link>
          </Button>
       </div>
