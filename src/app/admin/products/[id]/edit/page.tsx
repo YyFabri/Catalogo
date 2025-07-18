@@ -15,9 +15,8 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 
 export default function EditProductPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const { id } = params;
   const { products, updateProduct, isLoading } = useProductStore();
-  const product = products.find((p) => p.id === id);
+  const product = products.find((p) => p.id === params.id);
   
   useEffect(() => {
     if (!isLoading && !product) {
@@ -31,7 +30,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
   }, [isLoading, product, router])
 
   const handleUpdateProduct = (data: Omit<Product, 'id'>) => {
-    updateProduct(id, data);
+    updateProduct(params.id, data);
     
     toast({
       title: '¡Producto Actualizado!',
