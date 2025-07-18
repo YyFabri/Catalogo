@@ -28,7 +28,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
       });
       router.push('/admin');
     }
-  }, [isLoading, product, router])
+  }, [isLoading, product, router, id]);
 
   const handleUpdateProduct = (data: Omit<Product, 'id'>) => {
     updateProduct(id, data);
@@ -42,7 +42,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
 
   if (isLoading || !product) {
     return (
-        <div>
+        <div className="py-8 px-4">
            <div className="mb-4">
                 <Skeleton className="h-9 w-40" />
            </div>
@@ -80,7 +80,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto py-8 px-4">
         <div className="mb-4">
          <Button asChild variant="outline" size="sm">
             <Link href="/admin">

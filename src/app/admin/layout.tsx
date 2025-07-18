@@ -4,35 +4,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { LogOut, ShoppingBag, User } from 'lucide-react';
-import Link from 'next/link';
-
-function AdminHeader({ onLogout }: { onLogout: () => void }) {
-  return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center">
-        <Link href="/" className="flex items-center gap-2 mr-6 font-bold text-lg">
-          <ShoppingBag className="h-6 w-6 text-primary" style={{color: 'hsl(var(--accent))'}} />
-          <span className="font-bold">StockWise</span>
-          <span className="text-sm font-light text-muted-foreground ml-2">Panel de Admin</span>
-        </Link>
-        <div className="flex flex-1 items-center justify-end space-x-4">
-           <Button asChild variant="secondary" size="sm">
-              <Link href="/">
-                Volver al Sitio
-              </Link>
-            </Button>
-           <Button onClick={onLogout} variant="outline" size="sm">
-            <LogOut className="mr-2 h-4 w-4" />
-            Cerrar Sesión
-          </Button>
-        </div>
-      </div>
-    </header>
-  );
-}
-
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -51,14 +22,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   }, [router]);
 
-  const handleLogout = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('is_authenticated');
-      window.dispatchEvent(new Event('storage'));
-      router.push('/login');
-    }
-  };
-
   if (loading || !isAuth) {
     return (
       <div className="flex min-h-screen bg-muted/40">
@@ -73,11 +36,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
   
   return (
-    <div className="min-h-screen bg-muted/40">
-      <AdminHeader onLogout={handleLogout} />
-      <main className="p-4 sm:p-6 md:p-8">
-        {children}
-      </main>
+    <div className="min-h-screen bg-background">
+      {children}
     </div>
   );
 }

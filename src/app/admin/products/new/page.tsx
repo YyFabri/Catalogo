@@ -25,7 +25,7 @@ export default function NewProductPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto py-8 px-4">
        <div className="mb-4">
          <Button asChild variant="outline" size="sm">
             <Link href="/admin">

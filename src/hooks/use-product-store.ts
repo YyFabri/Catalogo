@@ -1,21 +1,66 @@
 'use client';
 
 import { create } from 'zustand';
-import { useEffect, useState as useReactState } from 'react';
-import type { Product } from '@/lib/types';
+import { useEffect } from 'react';
+import type { Product, Variant } from '@/lib/types';
 
 const initialProducts: Product[] = [
-    { id: '1', name: 'Oso de Peluche', description: 'Un compañero tierno para todas las edades.', price: 19.99, imageUrl: 'https://placehold.co/600x400.png', inStock: true, imageHint: 'teddy bear', category: 'Juguetes' },
-    { id: '2', name: 'Taza de Café de Cerámica', description: 'Una taza hermosa para tu café mañanero.', price: 12.50, imageUrl: 'https://placehold.co/600x400.png', inStock: true, imageHint: 'coffee mug', category: 'Hogar' },
-    { id: '3', name: 'Diario de Cuero', description: 'Para tus pensamientos, sueños y planes.', price: 25.00, imageUrl: 'https://placehold.co/600x400.png', inStock: false, imageHint: 'leather journal', category: 'Papelería' },
-    { id: '4', name: 'Vela de Soja Perfumada', description: 'Relajante aroma a lavanda y vainilla.', price: 18.00, imageUrl: 'https://placehold.co/600x400.png', inStock: true, imageHint: 'scented candle', category: 'Hogar' },
-    { id: '5', name: 'Caja de Rompecabezas de Madera', description: 'Un rompecabezas desafiante para mentes agudas.', price: 35.50, imageUrl: 'https://placehold.co/600x400.png', inStock: true, imageHint: 'puzzle box', category: 'Juguetes' },
+    { 
+      id: '1', 
+      name: 'Oso de Peluche', 
+      price: 19.99, 
+      imageUrl: 'https://placehold.co/600x400.png', 
+      category: 'Juguetes', 
+      imageHint: 'teddy bear',
+      variants: [
+        { id: 'v1', name: 'Marrón', inStock: true },
+        { id: 'v2', name: 'Blanco', inStock: false },
+      ]
+    },
+    { 
+      id: '2', 
+      name: 'Taza de Café de Cerámica', 
+      price: 12.50, 
+      imageUrl: 'https://placehold.co/600x400.png', 
+      category: 'Hogar', 
+      imageHint: 'coffee mug',
+      variants: []
+    },
+    { 
+      id: '3', 
+      name: 'Diario de Cuero', 
+      price: 25.00, 
+      imageUrl: 'https://placehold.co/600x400.png', 
+      category: 'Papelería', 
+      imageHint: 'leather journal',
+      variants: [] 
+    },
+    { 
+      id: '4', 
+      name: 'Vela de Soja Perfumada', 
+      price: 18.00, 
+      imageUrl: 'https://placehold.co/600x400.png', 
+      category: 'Hogar', 
+      imageHint: 'scented candle',
+      variants: [
+        { id: 'v3', name: 'Lavanda', inStock: true },
+        { id: 'v4', name: 'Vainilla', inStock: true },
+        { id: 'v5', name: 'Eucalipto', inStock: false },
+      ]
+    },
+    { 
+      id: '5', 
+      name: 'Caja de Rompecabezas de Madera', 
+      price: 35.50, 
+      imageUrl: 'https://placehold.co/600x400.png', 
+      category: 'Juguetes', 
+      imageHint: 'puzzle box',
+      variants: []
+    },
 ];
 
-const STORAGE_KEY = 'stockwise_products';
+const STORAGE_KEY = 'stockwise_products_v2';
 
-// This defines the shape of the data required to create or update a product.
-// We omit fields that are auto-generated or should not be changed directly by these operations.
 type ProductUpsertData = Omit<Product, 'id' | 'imageHint'>;
 
 interface ProductState {
@@ -37,12 +82,11 @@ const useProductStoreBase = create<ProductState>((set, get) => ({
     const newProduct: Product = {
       id: Date.now().toString(),
       name: productData.name,
-      description: productData.description,
       price: productData.price,
       imageUrl: productData.imageUrl,
-      inStock: productData.inStock,
       category: productData.category || 'Sin categoría',
       imageHint: productData.name.split(' ').slice(0, 2).join(' ').toLowerCase(),
+      variants: productData.variants.map(v => ({...v, id: `v_${Date.now()}_${Math.random()}`})),
     };
     const updatedProducts = [...get().products, newProduct];
     if (typeof window !== 'undefined') {
@@ -54,9 +98,12 @@ const useProductStoreBase = create<ProductState>((set, get) => ({
     const updatedProducts = get().products.map((p) => {
       if (p.id === id) {
         const updatedP = { ...p, ...productUpdate };
-        // If name changes, update imageHint as well
         if (productUpdate.name) {
             updatedP.imageHint = productUpdate.name.split(' ').slice(0, 2).join(' ').toLowerCase();
+        }
+        // Ensure new variants get a unique ID
+        if (productUpdate.variants) {
+          updatedP.variants = productUpdate.variants.map(v => v.id.startsWith('new_') ? {...v, id: `v_${Date.now()}_${Math.random()}`} : v);
         }
         return updatedP;
       }

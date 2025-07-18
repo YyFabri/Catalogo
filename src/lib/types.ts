@@ -1,10 +1,15 @@
+export interface Variant {
+  id: string;
+  name: string;
+  inStock: boolean;
+}
+
 export interface Product {
   id: string;
   name: string;
-  description: string;
   price: number;
   imageUrl: string;
-  inStock: boolean;
   category: string;
   imageHint?: string;
+  variants: Variant[];
 }

@@ -2,14 +2,13 @@
 import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import type { Product } from '@/lib/types';
+import type { Product, Variant } from '@/lib/types';
 import Header from '@/components/header';
 import { useProductStore } from '@/hooks/use-product-store';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Search } from 'lucide-react';
-
+import { Search, X } from 'lucide-react';
 
 const ProductCardSkeleton = () => (
   <Card className="flex flex-col overflow-hidden">
@@ -26,36 +25,92 @@ const ProductCardSkeleton = () => (
   </Card>
 );
 
+const ProductCard = ({ product, onSelect }: { product: Product; onSelect: (product: Product) => void; }) => {
+  const hasVariants = product.variants && product.variants.length > 0;
+  const someInStock = hasVariants && product.variants.some(v => v.inStock);
 
-const ProductCard = ({ product }: { product: Product }) => (
-  <Card className="flex flex-col overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl animate-in fade-in zoom-in-95">
-    <div className="relative h-48 w-full">
-      <Image
-        src={product.imageUrl}
-        alt={product.name}
-        fill
-        className="object-cover"
-        data-ai-hint={product.imageHint}
-      />
-       <Badge variant="secondary" className="absolute top-2 right-2">{product.category}</Badge>
-    </div>
-    <CardHeader>
-      <CardTitle className="text-xl">{product.name}</CardTitle>
-    </CardHeader>
-    <CardContent className="flex flex-col flex-grow">
-      <div className="flex-grow">
-         <p className="text-muted-foreground text-2xl font-semibold mb-4">${product.price.toFixed(2)}</p>
+  return (
+    <Card 
+      className="flex flex-col overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl animate-in fade-in zoom-in-95 cursor-pointer"
+      onClick={() => hasVariants && onSelect(product)}
+    >
+      <div className="relative h-48 w-full">
+        <Image
+          src={product.imageUrl}
+          alt={product.name}
+          fill
+          className="object-cover"
+          data-ai-hint={product.imageHint}
+        />
+        <Badge variant="secondary" className="absolute top-2 right-2">{product.category}</Badge>
       </div>
-      <Badge variant={product.inStock ? 'default' : 'destructive'} className="self-start bg-accent text-accent-foreground">
-        {product.inStock ? 'En Stock' : 'Sin Stock'}
-      </Badge>
-    </CardContent>
-  </Card>
-);
+      <CardHeader>
+        <CardTitle className="text-xl">{product.name}</CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col flex-grow">
+        <div className="flex-grow">
+          <p className="text-muted-foreground text-2xl font-semibold mb-4">${product.price.toFixed(2)}</p>
+        </div>
+        {hasVariants ? (
+           <Badge variant={someInStock ? 'default' : 'destructive'} className="self-start bg-accent text-accent-foreground">
+              {someInStock ? 'Ver variantes' : 'Sin Stock'}
+            </Badge>
+        ) : (
+          <Badge variant='destructive' className="self-start">
+            Sin Stock
+          </Badge>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+const VariantModal = ({ product, onClose }: { product: Product, onClose: () => void }) => {
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in" onClick={onClose}>
+      <div className="bg-card rounded-xl shadow-2xl w-full max-w-md m-4 p-6 relative animate-in zoom-in-95" onClick={e => e.stopPropagation()}>
+        <button onClick={onClose} className="absolute top-3 right-3 p-1 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground">
+          <X className="h-5 w-5" />
+          <span className="sr-only">Cerrar</span>
+        </button>
+        <div className="flex flex-col sm:flex-row gap-6">
+            <div className="relative w-full h-48 sm:w-40 sm:h-auto flex-shrink-0 rounded-lg overflow-hidden">
+                 <Image
+                    src={product.imageUrl}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                    data-ai-hint={product.imageHint}
+                />
+            </div>
+            <div className="flex-1">
+                <h2 className="text-2xl font-bold mb-2">{product.name}</h2>
+                <p className="text-xl font-semibold text-primary mb-4">${product.price.toFixed(2)}</p>
+                <div className="space-y-2">
+                    <h3 className="text-sm font-medium text-muted-foreground">Variantes disponibles:</h3>
+                    <ul className="space-y-2">
+                        {product.variants.map(variant => (
+                            <li key={variant.id} className="flex items-center justify-between p-2 rounded-md bg-muted/50">
+                               <span>{variant.name}</span>
+                               <Badge variant={variant.inStock ? 'default' : 'destructive'} className="bg-accent text-accent-foreground">
+                                 {variant.inStock ? 'En Stock' : 'Sin Stock'}
+                               </Badge>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 export default function Home() {
   const { products, isLoading } = useProductStore();
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const filteredProducts = useMemo(() => {
     if (!searchTerm) return products;
@@ -101,7 +156,7 @@ export default function Home() {
           ) : filteredProducts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {filteredProducts.map((product) => (
-                    <ProductCard key={product.id} product={product} />
+                    <ProductCard key={product.id} product={product} onSelect={setSelectedProduct} />
                 ))}
             </div>
           ) : (
@@ -116,6 +171,7 @@ export default function Home() {
           <p>&copy; {new Date().getFullYear()} Catálogo StockWise. Todos los derechos reservados.</p>
         </div>
       </footer>
+      {selectedProduct && <VariantModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />}
     </div>
   );
 }
