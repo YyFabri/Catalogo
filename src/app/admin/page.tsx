@@ -83,7 +83,7 @@ export default function AdminProductsPage() {
   return (
     <>
       <div className="flex min-h-screen w-full flex-col bg-muted/40 p-4 sm:p-6 md:p-8">
-            <header className="mb-4 flex items-center justify-end gap-2">
+            <header className="mb-4 flex items-center justify-center gap-2">
                  <Button asChild variant="outline">
                     <Link href="/">
                         <ArrowLeft className="mr-2 h-4 w-4" />
