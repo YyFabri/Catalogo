@@ -1,10 +1,11 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ShoppingBag, LogOut, User } from 'lucide-react';
+import { ShoppingBag, User } from 'lucide-react';
 
 const Header = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -13,33 +14,24 @@ const Header = () => {
 
   useEffect(() => {
     const checkAuth = () => {
+      // Ensure this runs only on the client
       if (typeof window !== 'undefined') {
-        setIsAuthenticated(localStorage.getItem('is_authenticated') === 'true');
+        const authStatus = localStorage.getItem('is_authenticated') === 'true';
+        setIsAuthenticated(authStatus);
       }
     };
     
     checkAuth();
 
+    // Listen for storage changes to update auth status across tabs
     window.addEventListener('storage', checkAuth);
     
     return () => {
       window.removeEventListener('storage', checkAuth);
     };
-  }, [pathname]);
-
-  const handleLogout = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('is_authenticated');
-      setIsAuthenticated(false);
-      
-      const event = new Event('storage');
-      window.dispatchEvent(event);
-
-      router.push('/admin/login');
-    }
-  };
+  }, [pathname]); // Rerun on pathname change if needed, though storage event is more robust
   
-  if (pathname.startsWith('/admin')) {
+  if (pathname.startsWith('/admin') || pathname.startsWith('/login')) {
       return null;
   }
 
@@ -61,7 +53,7 @@ const Header = () => {
               </Button>
             ) : (
               <Button asChild variant="ghost">
-                <Link href="/admin/login">
+                <Link href="/login">
                   Admin Login
                 </Link>
               </Button>

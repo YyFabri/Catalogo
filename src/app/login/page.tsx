@@ -7,15 +7,17 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { LockKeyhole } from 'lucide-react';
 
-export default function AdminLoginPage() {
+export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
+  const { toast } = useToast();
 
   useEffect(() => {
+    // This effect should only run on the client
     if (typeof window !== 'undefined') {
       const isAuthenticated = localStorage.getItem('is_authenticated') === 'true';
       if (isAuthenticated) {
@@ -36,8 +38,8 @@ export default function AdminLoginPage() {
       });
       if (typeof window !== 'undefined') {
         localStorage.setItem('is_authenticated', 'true');
-        const event = new Event('storage');
-        window.dispatchEvent(event);
+        // Dispatch a storage event to notify other tabs/windows (like the header)
+        window.dispatchEvent(new Event('storage'));
       }
       router.push('/admin');
     } else {
