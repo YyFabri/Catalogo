@@ -3,6 +3,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -18,7 +19,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { PlusCircle, Edit, Trash2, Search } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Search, ArrowLeft, LogOut } from 'lucide-react';
 import type { Product } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
 import { useProductStore } from '@/hooks/use-product-store';
@@ -29,6 +30,20 @@ export default function AdminProductsPage() {
   const { products, deleteProduct, isLoading } = useProductStore();
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const router = useRouter();
+
+  const handleLogout = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('is_authenticated');
+      window.dispatchEvent(new Event('storage'));
+      toast({
+        title: 'Sesión Cerrada',
+        description: 'Has cerrado sesión correctamente.',
+      });
+      router.push('/login');
+    }
+  };
+
 
   const filteredProducts = useMemo(() => {
     if (!searchTerm) return products;
@@ -67,34 +82,45 @@ export default function AdminProductsPage() {
 
   return (
     <>
-      <div className="flex min-h-screen w-full flex-col bg-muted/40">
-        <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
-            <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
+      <div className="flex min-h-screen w-full flex-col bg-muted/40 p-4 sm:p-6 md:p-8">
+            <main className="grid flex-1 items-start gap-4">
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-start sm:items-center justify-between gap-4 flex-col sm:flex-row">
                     <div className="flex-1">
                       <CardTitle>Gestión de Productos</CardTitle>
                       <CardDescription>Visualiza, añade, edita o elimina tus productos.</CardDescription>
                     </div>
-                     <div className="w-full max-w-md">
+                     <div className="w-full sm:max-w-xs">
                         <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                         <Input
                             type="search"
-                            placeholder="Buscar por producto o categoría..."
+                            placeholder="Buscar por producto..."
                             className="w-full pl-10"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                         </div>
                      </div>
-                    <Button asChild>
-                      <Link href="/admin/products/new">
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Añadir Producto
-                      </Link>
-                    </Button>
+                     <div className="flex gap-2">
+                        <Button asChild>
+                          <Link href="/admin/products/new">
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Añadir Producto
+                          </Link>
+                        </Button>
+                        <Button asChild variant="outline">
+                            <Link href="/">
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                Volver al Catálogo
+                            </Link>
+                        </Button>
+                        <Button variant="destructive" onClick={handleLogout}>
+                            <LogOut className="mr-2 h-4 w-4" />
+                            Cerrar Sesión
+                        </Button>
+                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -174,7 +200,6 @@ export default function AdminProductsPage() {
                 </CardContent>
               </Card>
             </main>
-        </div>
       </div>
 
 
