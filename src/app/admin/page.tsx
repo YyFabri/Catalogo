@@ -84,14 +84,33 @@ export default function AdminProductsPage() {
     <>
       <div className="flex min-h-screen w-full flex-col bg-muted/40 p-4 sm:p-6 md:p-8">
             <main className="grid flex-1 items-start gap-4">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex-1">
+                  <h1 className="text-2xl font-bold">Gestión de Productos</h1>
+                  <p className="text-muted-foreground">Visualiza, añade, edita o elimina tus productos.</p>
+                </div>
+                <div className="flex items-center gap-2">
+                   <Button asChild>
+                    <Link href="/admin/products/new">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Añadir Producto
+                    </Link>
+                    </Button>
+                    <Button asChild variant="outline">
+                        <Link href="/">
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Volver al Catálogo
+                        </Link>
+                    </Button>
+                    <Button variant="destructive" onClick={handleLogout}>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Cerrar Sesión
+                    </Button>
+                </div>
+              </div>
               <Card>
                 <CardHeader>
-                  <div className="flex items-start sm:items-center justify-between gap-4 flex-col sm:flex-row">
-                    <div className="flex-1">
-                      <CardTitle>Gestión de Productos</CardTitle>
-                      <CardDescription>Visualiza, añade, edita o elimina tus productos.</CardDescription>
-                    </div>
-                     <div className="w-full sm:max-w-xs">
+                    <div className="w-full sm:max-w-xs">
                         <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                         <Input
@@ -103,25 +122,6 @@ export default function AdminProductsPage() {
                         />
                         </div>
                      </div>
-                     <div className="flex gap-2">
-                        <Button asChild>
-                          <Link href="/admin/products/new">
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Añadir Producto
-                          </Link>
-                        </Button>
-                        <Button asChild variant="outline">
-                            <Link href="/">
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Volver al Catálogo
-                            </Link>
-                        </Button>
-                        <Button variant="destructive" onClick={handleLogout}>
-                            <LogOut className="mr-2 h-4 w-4" />
-                            Cerrar Sesión
-                        </Button>
-                     </div>
-                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="border rounded-md">
