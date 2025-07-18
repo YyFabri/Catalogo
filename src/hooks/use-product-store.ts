@@ -42,7 +42,7 @@ const useProductStoreBase = create<ProductState>((set, get) => ({
   },
   updateProduct: (id, productData) => {
     const updatedProducts = get().products.map((p) =>
-      p.id === id ? { ...p, ...productData, id } : p
+      p.id === id ? { ...p, ...productData, id, imageHint: productData.name.split(' ').slice(0, 2).join(' ').toLowerCase() } : p
     );
      if (typeof window !== 'undefined') {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedProducts));
@@ -61,19 +61,21 @@ const useProductStoreBase = create<ProductState>((set, get) => ({
 // A wrapper hook to handle hydration from localStorage
 export const useProductStore = () => {
   const store = useProductStoreBase();
+  const { setProducts, setLoading } = useProductStoreBase(state => ({ setProducts: state.setProducts, setLoading: state.setLoading }));
   const [hydrated, setHydrated] = useReactState(false);
 
   useEffect(() => {
     const storedProducts = localStorage.getItem(STORAGE_KEY);
     if (storedProducts) {
-      store.setProducts(JSON.parse(storedProducts));
+      setProducts(JSON.parse(storedProducts));
     } else {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(initialProducts));
-      store.setProducts(initialProducts);
+      setProducts(initialProducts);
     }
-    store.setLoading(false);
+    setLoading(false);
     setHydrated(true);
-  }, [store]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setProducts, setLoading]);
 
   return { ...store, isLoading: !hydrated || store.isLoading };
 };
