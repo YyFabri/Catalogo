@@ -25,7 +25,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
         title: "Product not found",
         description: "The product you are trying to edit does not exist.",
       });
-      router.push('/admin/products');
+      router.push('/admin');
     }
   }, [isLoading, product, router])
 
@@ -36,7 +36,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
       title: 'Product Updated!',
       description: `"${data.name}" has been saved.`,
     });
-    router.push('/admin/products');
+    router.push('/admin');
   };
 
   if (isLoading || !product) {
@@ -79,10 +79,10 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
   }
 
   return (
-    <div>
+    <div className="max-w-2xl mx-auto">
         <div className="mb-4">
          <Button asChild variant="outline" size="sm">
-            <Link href="/admin/products">
+            <Link href="/admin">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Products
             </Link>

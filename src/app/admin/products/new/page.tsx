@@ -21,14 +21,14 @@ export default function NewProductPage() {
       title: 'Product Created!',
       description: `"${data.name}" has been added to the catalog.`,
     });
-    router.push('/admin/products');
+    router.push('/admin');
   };
 
   return (
-    <div>
+    <div className="max-w-2xl mx-auto">
        <div className="mb-4">
          <Button asChild variant="outline" size="sm">
-            <Link href="/admin/products">
+            <Link href="/admin">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Products
             </Link>
