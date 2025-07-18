@@ -8,20 +8,28 @@ import { toast } from '@/hooks/use-toast';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { useProductStore } from '@/hooks/use-product-store';
+import { db } from '@/lib/firebase';
+import { collection, addDoc } from 'firebase/firestore';
 
 export default function NewProductPage() {
   const router = useRouter();
-  const { addProduct } = useProductStore();
 
-  const handleCreateProduct = (data: Omit<Product, 'id' | 'imageHint'>) => {
-    addProduct(data);
-    
-    toast({
-      title: '¡Producto Creado!',
-      description: `"${data.name}" ha sido añadido al catálogo.`,
-    });
-    router.push('/admin');
+  const handleCreateProduct = async (data: Omit<Product, 'id' | 'imageHint'>) => {
+    try {
+      await addDoc(collection(db, 'products'), data);
+      toast({
+        title: '¡Producto Creado!',
+        description: `"${data.name}" ha sido añadido al catálogo.`,
+      });
+      router.push('/admin');
+    } catch (e) {
+      console.error("Error adding document: ", e);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo crear el producto."
+      });
+    }
   };
 
   return (

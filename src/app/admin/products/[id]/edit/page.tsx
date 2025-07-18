@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ProductForm } from '@/components/product-form';
 import type { Product } from '@/lib/types';
@@ -10,39 +10,68 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useProductStore } from '@/hooks/use-product-store';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { db } from '@/lib/firebase';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 export default function EditProductPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { id } = params;
-  const { products, updateProduct, isLoading } = useProductStore();
-  const product = products.find((p) => p.id === id);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
-    if (!isLoading && !product) {
-       toast({
-        variant: "destructive",
-        title: "Producto no encontrado",
-        description: "El producto que intentas editar no existe.",
-      });
-      router.push('/admin');
-    }
-  }, [isLoading, product, router, id]);
+    const fetchProduct = async () => {
+      if (!id) return;
+      setIsLoading(true);
+      try {
+        const docRef = doc(db, 'products', id);
+        const docSnap = await getDoc(docRef);
 
-  const handleUpdateProduct = (data: Omit<Product, 'id'>) => {
-    updateProduct(id, data);
+        if (docSnap.exists()) {
+          setProduct({ id: docSnap.id, ...docSnap.data() } as Product);
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Producto no encontrado",
+            description: "El producto que intentas editar no existe.",
+          });
+          router.push('/admin');
+        }
+      } catch (error) {
+        console.error("Error fetching product:", error);
+        toast({ variant: 'destructive', title: 'Error', description: 'No se pudo cargar el producto.'});
+        router.push('/admin');
+      } finally {
+        setIsLoading(false);
+      }
+    };
     
-    toast({
-      title: '¡Producto Actualizado!',
-      description: `"${data.name}" ha sido guardado.`,
-    });
-    router.push('/admin');
+    fetchProduct();
+  }, [id, router]);
+
+  const handleUpdateProduct = async (data: Omit<Product, 'id'>) => {
+    try {
+        const docRef = doc(db, 'products', id);
+        await updateDoc(docRef, data);
+        toast({
+            title: '¡Producto Actualizado!',
+            description: `"${data.name}" ha sido guardado.`,
+        });
+        router.push('/admin');
+    } catch (error) {
+        console.error("Error updating product: ", error);
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: "No se pudo actualizar el producto."
+        });
+    }
   };
 
   if (isLoading || !product) {
     return (
-        <div className="py-8 px-4">
+        <div className="max-w-2xl mx-auto py-8 px-4">
            <div className="mb-4">
                 <Skeleton className="h-9 w-40" />
            </div>

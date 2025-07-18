@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import type { Product, Variant } from '@/lib/types';
+import type { Product } from '@/lib/types';
 import { PlusCircle, Trash2 } from 'lucide-react';
 
 const variantSchema = z.object({
@@ -21,16 +21,16 @@ const formSchema = z.object({
   name: z.string().min(2, { message: 'El nombre debe tener al menos 2 caracteres.' }),
   price: z.coerce.number().positive({ message: 'El precio debe ser un número positivo.' }),
   imageUrl: z.string().url({ message: 'Por favor, introduce una URL de imagen válida.' }),
+  imageHint: z.string().optional(),
   category: z.string().min(2, { message: 'La categoría debe tener al menos 2 caracteres.' }),
-  hasVariants: z.boolean(),
-  variants: z.array(variantSchema),
+  variants: z.array(variantSchema).default([]),
 });
 
 type ProductFormValues = z.infer<typeof formSchema>;
 
 interface ProductFormProps {
   initialData?: Product | null;
-  onSubmit: (data: Omit<Product, 'id' | 'imageHint'>) => void;
+  onSubmit: (data: Omit<Product, 'id'>) => void;
 }
 
 export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
@@ -41,7 +41,7 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
       price: initialData?.price || 0,
       imageUrl: initialData?.imageUrl || 'https://placehold.co/600x400.png',
       category: initialData?.category || '',
-      hasVariants: initialData ? initialData.variants.length > 0 : false,
+      imageHint: initialData?.imageHint || '',
       variants: initialData?.variants || [],
     },
   });
@@ -51,13 +51,17 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
     name: "variants"
   });
 
-  const hasVariants = form.watch('hasVariants');
   const isEditing = !!initialData;
 
   const handleSubmit = (data: ProductFormValues) => {
     const finalData = {
-      ...data,
-      variants: data.hasVariants ? data.variants : [],
+        ...data,
+        imageHint: data.name.split(' ').slice(0, 2).join(' ').toLowerCase(),
+        variants: data.variants.map(v => ({
+            id: v.id.startsWith('new_') ? `v_${Date.now()}_${Math.random()}` : v.id,
+            name: v.name,
+            inStock: v.inStock
+        }))
     };
     onSubmit(finalData);
   };
@@ -127,33 +131,20 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
                         <FormControl>
                             <Input placeholder="https://placehold.co/600x400.png" {...field} />
                         </FormControl>
+                         <FormDescription>
+                            Puedes usar <a href="https://placehold.co" target="_blank" rel="noopener noreferrer" className="underline">placehold.co</a> para imágenes de prueba.
+                        </FormDescription>
                         <FormMessage />
                         </FormItem>
                     )}
             />
-            <FormField
-              control={form.control}
-              name="hasVariants"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div>
-                        <FormLabel>¿Tiene Variantes?</FormLabel>
-                        <FormDescription>Activa esto si el producto tiene diferentes versiones (ej. color, talle).</FormDescription>
-                    </div>
-                  <FormControl>
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-            {hasVariants && (
+           
               <Card className="bg-muted/50">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
                       <CardTitle className="text-lg">Variantes del Producto</CardTitle>
-                      <CardDescription>Añade y gestiona las variantes disponibles.</CardDescription>
+                      <CardDescription>Añade y gestiona las versiones disponibles (ej. color, talle). Si no hay variantes, el producto se considerará "Sin Stock".</CardDescription>
                     </div>
                      <Button type="button" size="sm" onClick={addNewVariant}>
                         <PlusCircle className="mr-2 h-4 w-4" />
@@ -200,11 +191,10 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
                   )}
                 </CardContent>
               </Card>
-            )}
           </CardContent>
           <CardFooter>
             <Button type="submit" disabled={form.formState.isSubmitting}>
-              {isEditing ? 'Guardar Cambios' : 'Crear Producto'}
+              {form.formState.isSubmitting ? 'Guardando...' : (isEditing ? 'Guardar Cambios' : 'Crear Producto')}
             </Button>
           </CardFooter>
         </form>

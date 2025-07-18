@@ -22,15 +22,37 @@ import {
 import { PlusCircle, Edit, Trash2, Search, ArrowLeft, LogOut } from 'lucide-react';
 import type { Product } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
-import { useProductStore } from '@/hooks/use-product-store';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { db } from '@/lib/firebase';
+import { collection, onSnapshot, doc, deleteDoc, query, orderBy } from 'firebase/firestore';
+
 
 export default function AdminProductsPage() {
-  const { products, deleteProduct, isLoading } = useProductStore();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
+
+  useEffect(() => {
+    const q = query(collection(db, 'products'), orderBy('name', 'asc'));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const productsData: Product[] = [];
+      querySnapshot.forEach((doc) => {
+        productsData.push({ id: doc.id, ...doc.data() } as Product);
+      });
+      setProducts(productsData);
+      setIsLoading(false);
+    }, (error) => {
+        console.error("Error fetching products:", error);
+        toast({ variant: 'destructive', title: 'Error', description: 'No se pudieron cargar los productos.' });
+        setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
 
   const handleLogout = () => {
     if (typeof window !== 'undefined') {
@@ -54,14 +76,24 @@ export default function AdminProductsPage() {
     );
   }, [products, searchTerm]);
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!productToDelete) return;
-    deleteProduct(productToDelete.id);
-    toast({
-      title: 'Producto Eliminado',
-      description: `"${productToDelete.name}" ha sido eliminado.`,
-    });
-    setProductToDelete(null);
+    try {
+        await deleteDoc(doc(db, "products", productToDelete.id));
+        toast({
+            title: 'Producto Eliminado',
+            description: `"${productToDelete.name}" ha sido eliminado.`,
+        });
+    } catch (error) {
+        console.error("Error deleting product:", error)
+        toast({
+            variant: "destructive",
+            title: 'Error',
+            description: 'No se pudo eliminar el producto.',
+        });
+    } finally {
+        setProductToDelete(null);
+    }
   };
 
   const TableSkeleton = () => (
@@ -143,13 +175,13 @@ export default function AdminProductsPage() {
                         {filteredProducts.length === 0 ? (
                           <TableRow>
                             <TableCell colSpan={6} className="text-center h-24">
-                               {products.length === 0 ? "No se encontraron productos." : `No se encontraron productos para "${searchTerm}".`}
+                               {products.length === 0 ? "No hay productos. Añade uno para empezar." : `No se encontraron productos para "${searchTerm}".`}
                             </TableCell>
                           </TableRow>
                         ) : (
                           filteredProducts.map((product) => {
                             const hasVariants = product.variants && product.variants.length > 0;
-                            const someInStock = hasVariants && product.variants.some(v => v.inStock);
+                            const someInStock = hasVariants ? product.variants.some(v => v.inStock) : false;
 
                             return (
                               <TableRow key={product.id}>
@@ -171,7 +203,7 @@ export default function AdminProductsPage() {
                                 <TableCell>
                                   {hasVariants ? (
                                     <Badge variant={someInStock ? 'default' : 'destructive'} className="bg-blue-100 text-blue-800">
-                                      {product.variants.length} variantes
+                                      {product.variants.length} variante(s)
                                     </Badge>
                                   ) : (
                                      <Badge variant="destructive">Sin Stock</Badge>

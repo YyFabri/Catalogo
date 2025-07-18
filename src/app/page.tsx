@@ -1,14 +1,16 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import type { Product, Variant } from '@/lib/types';
+import type { Product } from '@/lib/types';
 import Header from '@/components/header';
-import { useProductStore } from '@/hooks/use-product-store';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Search, X } from 'lucide-react';
+import { db } from '@/lib/firebase';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+
 
 const ProductCardSkeleton = () => (
   <Card className="flex flex-col overflow-hidden">
@@ -32,7 +34,7 @@ const ProductCard = ({ product, onSelect }: { product: Product; onSelect: (produ
   return (
     <Card 
       className="flex flex-col overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl animate-in fade-in zoom-in-95 cursor-pointer"
-      onClick={() => hasVariants && onSelect(product)}
+      onClick={() => (hasVariants && someInStock) && onSelect(product)}
     >
       <div className="relative h-48 w-full">
         <Image
@@ -108,9 +110,28 @@ const VariantModal = ({ product, onClose }: { product: Product, onClose: () => v
 
 
 export default function Home() {
-  const { products, isLoading } = useProductStore();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  useEffect(() => {
+    const q = query(collection(db, 'products'), orderBy('name', 'asc'));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const productsData: Product[] = [];
+      querySnapshot.forEach((doc) => {
+        productsData.push({ id: doc.id, ...doc.data() } as Product);
+      });
+      setProducts(productsData);
+      setIsLoading(false);
+    }, (error) => {
+        console.error("Error fetching products:", error);
+        setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
 
   const filteredProducts = useMemo(() => {
     if (!searchTerm) return products;
@@ -161,7 +182,9 @@ export default function Home() {
             </div>
           ) : (
              <div className="text-center py-16">
-                <p className="text-xl text-muted-foreground">No se encontraron productos para "{searchTerm}".</p>
+                 <p className="text-xl text-muted-foreground">
+                    {products.length === 0 ? "No hay productos en el catálogo todavía." : `No se encontraron productos para "${searchTerm}".`}
+                </p>
             </div>
           )}
         </section>
