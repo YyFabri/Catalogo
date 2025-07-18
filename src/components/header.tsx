@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ShoppingBag, LogOut } from 'lucide-react';
+import { ShoppingBag, LogOut, User } from 'lucide-react';
 
 const Header = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -13,7 +13,9 @@ const Header = () => {
 
   useEffect(() => {
     const checkAuth = () => {
-      setIsAuthenticated(localStorage.getItem('is_authenticated') === 'true');
+      if (typeof window !== 'undefined') {
+        setIsAuthenticated(localStorage.getItem('is_authenticated') === 'true');
+      }
     };
     
     checkAuth();
@@ -26,14 +28,20 @@ const Header = () => {
   }, [pathname]);
 
   const handleLogout = () => {
-    localStorage.removeItem('is_authenticated');
-    setIsAuthenticated(false);
-    
-    const event = new Event('storage');
-    window.dispatchEvent(event);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('is_authenticated');
+      setIsAuthenticated(false);
+      
+      const event = new Event('storage');
+      window.dispatchEvent(event);
 
-    router.push('/admin/login');
+      router.push('/admin/login');
+    }
   };
+  
+  if (pathname.startsWith('/admin')) {
+      return null;
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -45,14 +53,16 @@ const Header = () => {
         <div className="flex flex-1 items-center justify-end space-x-4">
           <nav className="flex items-center space-x-2">
             {isAuthenticated ? (
-              <Button variant="ghost" onClick={handleLogout}>
-                <LogOut className="mr-2 h-4 w-4" />
-                Logout
+               <Button asChild variant="secondary">
+                <Link href="/admin">
+                  <User className="mr-2 h-4 w-4" />
+                  Admin
+                </Link>
               </Button>
             ) : (
-              <Button asChild variant={pathname.startsWith('/admin') ? "secondary" : "ghost"}>
+              <Button asChild variant="ghost">
                 <Link href="/admin/login">
-                  Admin Panel
+                  Admin Login
                 </Link>
               </Button>
             )}

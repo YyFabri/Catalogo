@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ProductForm } from '@/components/product-form';
 import type { Product } from '@/lib/types';
@@ -9,50 +9,36 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
-
-const STORAGE_KEY = 'stockwise_products';
+import { useProductStore } from '@/hooks/use-product-store';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 
 export default function EditProductPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(true);
-
+  const { products, updateProduct, isLoading } = useProductStore();
+  const product = products.find((p) => p.id === params.id);
+  
   useEffect(() => {
-    const products: Product[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    const productToEdit = products.find((p) => p.id === params.id);
-    if (productToEdit) {
-      setProduct(productToEdit);
-    } else {
-      toast({
+    if (!isLoading && !product) {
+       toast({
         variant: "destructive",
         title: "Product not found",
         description: "The product you are trying to edit does not exist.",
       });
-      router.push('/admin');
+      router.push('/admin/products');
     }
-    setLoading(false);
-  }, [params.id, router]);
+  }, [isLoading, product, router])
 
   const handleUpdateProduct = (data: Omit<Product, 'id'>) => {
-    const updatedProduct: Product = {
-      ...data,
-      id: params.id,
-    };
-    
-    const storedProducts: Product[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    const updatedProducts = storedProducts.map((p) =>
-      p.id === params.id ? updatedProduct : p
-    );
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedProducts));
+    updateProduct(params.id, data);
     
     toast({
       title: 'Product Updated!',
-      description: `"${updatedProduct.name}" has been saved.`,
+      description: `"${data.name}" has been saved.`,
     });
-    router.push('/admin');
+    router.push('/admin/products');
   };
 
-  if (loading) {
+  if (isLoading || !product) {
     return (
         <div>
            <div className="mb-4">
@@ -95,7 +81,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
     <div>
         <div className="mb-4">
          <Button asChild variant="outline" size="sm">
-            <Link href="/admin">
+            <Link href="/admin/products">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Products
             </Link>

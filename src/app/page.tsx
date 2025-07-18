@@ -1,83 +1,28 @@
+'use client';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import type { Product } from '@/lib/types';
 import Header from '@/components/header';
+import { useProductStore } from '@/hooks/use-product-store';
+import { Skeleton } from '@/components/ui/skeleton';
 
-const products: Product[] = [
-  {
-    id: '1',
-    name: 'Pink Dream Sweater',
-    description: 'A cozy and stylish sweater made from 100% cashmere.',
-    price: 59.99,
-    imageUrl: 'https://placehold.co/600x400.png',
-    inStock: true,
-    imageHint: 'pink sweater',
-  },
-  {
-    id: '2',
-    name: 'Sky Blue Jeans',
-    description: 'Perfect fit denim that is both comfortable and durable.',
-    price: 79.99,
-    imageUrl: 'https://placehold.co/600x400.png',
-    inStock: true,
-    imageHint: 'blue jeans',
-  },
-  {
-    id: '3',
-    name: 'Classic White Sneakers',
-    description: 'Versatile sneakers that go with any outfit.',
-    price: 89.99,
-    imageUrl: 'https://placehold.co/600x400.png',
-    inStock: false,
-    imageHint: 'white sneakers',
-  },
-  {
-    id: '4',
-    name: 'Minimalist Wristwatch',
-    description: 'An elegant timepiece with a leather strap.',
-    price: 149.99,
-    imageUrl: 'https://placehold.co/600x400.png',
-    inStock: true,
-    imageHint: 'wristwatch',
-  },
-  {
-    id: '5',
-    name: 'Soft Cotton Scarf',
-    description: 'A light and soft scarf for a touch of elegance.',
-    price: 29.99,
-    imageUrl: 'https://placehold.co/600x400.png',
-    inStock: true,
-    imageHint: 'cotton scarf',
-  },
-  {
-    id: '6',
-    name: 'Leather Backpack',
-    description: 'A durable and spacious backpack for daily use.',
-    price: 120.0,
-    imageUrl: 'https://placehold.co/600x400.png',
-    inStock: true,
-    imageHint: 'leather backpack',
-  },
-  {
-    id: '7',
-    name: 'Gradient Sunglasses',
-    description: 'Stylish sunglasses with UV protection.',
-    price: 45.5,
-    imageUrl: 'https://placehold.co/600x400.png',
-    inStock: false,
-    imageHint: 'sunglasses',
-  },
-  {
-    id: '8',
-    name: 'Wool Blend Beanie',
-    description: 'Keep warm with this soft wool blend beanie.',
-    price: 22.0,
-    imageUrl: 'https://placehold.co/600x400.png',
-    inStock: true,
-    imageHint: 'beanie hat',
-  },
-];
+
+const ProductCardSkeleton = () => (
+  <Card className="flex flex-col overflow-hidden">
+    <Skeleton className="h-48 w-full" />
+    <CardHeader>
+      <Skeleton className="h-6 w-3/4" />
+    </CardHeader>
+    <CardContent className="flex flex-col flex-grow">
+      <div className="flex-grow">
+        <Skeleton className="h-8 w-1/4 mb-4" />
+      </div>
+      <Skeleton className="h-6 w-20" />
+    </CardContent>
+  </Card>
+);
+
 
 const ProductCard = ({ product }: { product: Product }) => (
   <Card className="flex flex-col overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl animate-in fade-in zoom-in-95">
@@ -105,6 +50,8 @@ const ProductCard = ({ product }: { product: Product }) => (
 );
 
 export default function Home() {
+  const { products, isLoading } = useProductStore();
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -119,9 +66,13 @@ export default function Home() {
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+            {isLoading ? (
+              Array.from({ length: 8 }).map((_, i) => <ProductCardSkeleton key={i} />)
+            ) : (
+              products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))
+            )}
           </div>
         </section>
       </main>

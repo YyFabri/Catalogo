@@ -7,34 +7,27 @@ import { toast } from '@/hooks/use-toast';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-
-const STORAGE_KEY = 'stockwise_products';
+import { useProductStore } from '@/hooks/use-product-store';
 
 export default function NewProductPage() {
   const router = useRouter();
+  const { addProduct } = useProductStore();
 
-  const handleCreateProduct = (data: Omit<Product, 'id'>) => {
-    const newProduct: Product = {
-      ...data,
-      id: Date.now().toString(),
-    };
-
-    const storedProducts = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    const updatedProducts = [...storedProducts, newProduct];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedProducts));
+  const handleCreateProduct = (data: Omit<Product, 'id' | 'imageHint'>) => {
+    addProduct(data);
     
     toast({
       title: 'Product Created!',
-      description: `"${newProduct.name}" has been added to the catalog.`,
+      description: `"${data.name}" has been added to the catalog.`,
     });
-    router.push('/admin');
+    router.push('/admin/products');
   };
 
   return (
     <div>
        <div className="mb-4">
          <Button asChild variant="outline" size="sm">
-            <Link href="/admin">
+            <Link href="/admin/products">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Products
             </Link>
