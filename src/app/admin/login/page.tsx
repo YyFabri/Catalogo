@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,6 +14,15 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isAuthenticated = localStorage.getItem('is_authenticated') === 'true';
+      if (isAuthenticated) {
+        router.replace('/admin');
+      }
+    }
+  }, [router]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +56,7 @@ export default function AdminLoginPage() {
         <form onSubmit={handleLogin}>
           <CardHeader className="text-center">
             <div className="mx-auto bg-primary/20 p-3 rounded-full w-fit mb-4">
-              <LockKeyhole className="w-8 h-8 text-primary" style={{color: 'hsl(var(--accent-foreground))'}} />
+              <LockKeyhole className="w-8 h-8 text-primary" />
             </div>
             <CardTitle className="text-2xl font-bold">Admin Access</CardTitle>
             <CardDescription>Enter the password to access the admin panel.</CardDescription>

@@ -1,6 +1,7 @@
+
 'use client';
 
-import create from 'zustand';
+import { create } from 'zustand';
 import { useEffect, useState as useReactState } from 'react';
 import type { Product } from '@/lib/types';
 
@@ -11,14 +12,6 @@ const initialProducts: Product[] = [
 ];
 
 const STORAGE_KEY = 'stockwise_products';
-
-const getInitialState = () => {
-  if (typeof window !== 'undefined') {
-    const storedProducts = localStorage.getItem(STORAGE_KEY);
-    return storedProducts ? JSON.parse(storedProducts) : initialProducts;
-  }
-  return initialProducts;
-};
 
 interface ProductState {
   products: Product[];
@@ -78,8 +71,9 @@ export const useProductStore = () => {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(initialProducts));
       store.setProducts(initialProducts);
     }
+    store.setLoading(false);
     setHydrated(true);
-  }, []);
+  }, [store]);
 
   return { ...store, isLoading: !hydrated || store.isLoading };
 };
