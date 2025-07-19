@@ -21,7 +21,6 @@ const formSchema = z.object({
   name: z.string().min(2, { message: 'El nombre debe tener al menos 2 caracteres.' }),
   price: z.coerce.number().positive({ message: 'El precio debe ser un número positivo.' }),
   imageUrl: z.string().url({ message: 'Por favor, introduce una URL de imagen válida.' }),
-  imageHint: z.string().optional(),
   category: z.string().min(2, { message: 'La categoría debe tener al menos 2 caracteres.' }),
   variants: z.array(variantSchema).default([]),
 });
@@ -30,7 +29,7 @@ type ProductFormValues = z.infer<typeof formSchema>;
 
 interface ProductFormProps {
   initialData?: Product | null;
-  onSubmit: (data: Omit<Product, 'id'>) => void;
+  onSubmit: (data: Omit<Product, 'id' | 'imageHint'>) => void;
 }
 
 export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
@@ -41,7 +40,6 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
       price: initialData?.price || 0,
       imageUrl: initialData?.imageUrl || 'https://placehold.co/600x400.png',
       category: initialData?.category || '',
-      imageHint: initialData?.imageHint || '',
       variants: initialData?.variants || [],
     },
   });
@@ -56,7 +54,6 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
   const handleSubmit = (data: ProductFormValues) => {
     const finalData = {
         ...data,
-        imageHint: data.name.split(' ').slice(0, 2).join(' ').toLowerCase(),
         variants: data.variants.map(v => ({
             id: v.id.startsWith('new_') ? `v_${Date.now()}_${Math.random()}` : v.id,
             name: v.name,

@@ -14,9 +14,12 @@ import { collection, addDoc } from 'firebase/firestore';
 export default function NewProductPage() {
   const router = useRouter();
 
-  const handleCreateProduct = async (data: Omit<Product, 'id' | 'imageHint'>) => {
+  const handleCreateProduct = async (data: Omit<Product, 'id'>) => {
     try {
-      await addDoc(collection(db, 'products'), data);
+      await addDoc(collection(db, 'products'), {
+          ...data,
+          imageHint: data.name.split(' ').slice(0, 2).join(' ').toLowerCase(),
+      });
       toast({
         title: '¡Producto Creado!',
         description: `"${data.name}" ha sido añadido al catálogo.`,
