@@ -19,19 +19,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { PlusCircle, Edit, Trash2, Search, ArrowLeft, LogOut } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Search, ArrowLeft, LogOut, Database } from 'lucide-react';
 import type { Product } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
 import { useState, useMemo, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { db, auth } from '@/lib/firebase';
-import { collection, onSnapshot, doc, deleteDoc, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, doc, deleteDoc, query, orderBy, writeBatch, getDocs } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
+import { seedData } from '@/lib/seed-data';
 
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSeeding, setIsSeeding] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
@@ -53,6 +55,45 @@ export default function AdminProductsPage() {
 
     return () => unsubscribe();
   }, []);
+
+  const handleSeedDatabase = async () => {
+    setIsSeeding(true);
+    try {
+      const productsRef = collection(db, 'products');
+      const q = query(productsRef);
+      const snapshot = await getDocs(q);
+
+      if (!snapshot.empty) {
+        toast({
+            variant: "destructive",
+            title: "Base de datos no vacía",
+            description: "Para evitar duplicados, los datos de ejemplo solo se pueden añadir a una base de datos vacía.",
+        });
+        setIsSeeding(false);
+        return;
+      }
+
+      const batch = writeBatch(db);
+      seedData.forEach((product) => {
+        const docRef = doc(collection(db, "products"));
+        batch.set(docRef, product);
+      });
+      await batch.commit();
+      toast({
+        title: '¡Éxito!',
+        description: 'Se han añadido los productos de ejemplo a la base de datos.',
+      });
+    } catch (error) {
+        console.error("Error seeding database: ", error);
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: "No se pudieron añadir los datos de ejemplo.",
+        });
+    } finally {
+        setIsSeeding(false);
+    }
+  }
 
 
   const handleLogout = async () => {
@@ -141,23 +182,31 @@ export default function AdminProductsPage() {
                             <CardTitle>Gestión de Productos</CardTitle>
                             <CardDescription>Visualiza, añade, edita o elimina tus productos.</CardDescription>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <div className="relative w-full sm:max-w-xs">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                                <Input
-                                    type="search"
-                                    placeholder="Buscar por producto..."
-                                    className="w-full pl-10"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                            </div>
-                            <Button asChild>
-                                <Link href="/admin/products/new">
-                                    <PlusCircle className="mr-2 h-4 w-4" />
-                                    Añadir Producto
-                                </Link>
-                            </Button>
+                        <div className="flex flex-col sm:flex-row items-center gap-2">
+                            <div className="flex items-center gap-2">
+                                <div className="relative w-full sm:max-w-xs">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                    <Input
+                                        type="search"
+                                        placeholder="Buscar por producto..."
+                                        className="w-full pl-10"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
+                                <Button asChild>
+                                    <Link href="/admin/products/new">
+                                        <PlusCircle className="mr-2 h-4 w-4" />
+                                        Añadir Producto
+                                    </Link>
+                                </Button>
+                             </div>
+                            {products.length === 0 && (
+                                <Button variant="outline" onClick={handleSeedDatabase} disabled={isSeeding}>
+                                    <Database className="mr-2 h-4 w-4" />
+                                    {isSeeding ? 'Poblando...' : 'Poblar Datos de Ejemplo'}
+                                </Button>
+                            )}
                         </div>
                     </div>
                 </CardHeader>
@@ -181,7 +230,7 @@ export default function AdminProductsPage() {
                         {filteredProducts.length === 0 ? (
                           <TableRow>
                             <TableCell colSpan={6} className="text-center h-24">
-                               {products.length === 0 ? "No hay productos. Añade uno para empezar." : `No se encontraron productos para "${searchTerm}".`}
+                               {products.length === 0 ? "No hay productos. Añade uno o puebla la base de datos con datos de ejemplo." : `No se encontraron productos para "${searchTerm}".`}
                             </TableCell>
                           </TableRow>
                         ) : (
@@ -261,3 +310,5 @@ export default function AdminProductsPage() {
     </>
   );
 }
+
+    
