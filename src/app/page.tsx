@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
@@ -52,6 +53,7 @@ const ProductCard = ({ product, onSelect }: { product: Product; onSelect: (produ
           className="object-cover"
           data-ai-hint={product.imageHint}
         />
+        <Badge variant="secondary" className="absolute top-2 left-2">{product.category}</Badge>
         {product.quantity && (
           <div className="absolute top-2 right-2 flex items-center justify-center w-12 h-12 bg-gray-700/80 rounded-full">
             <span className="text-white font-bold text-sm">x{product.quantity}u</span>
@@ -60,7 +62,6 @@ const ProductCard = ({ product, onSelect }: { product: Product; onSelect: (produ
       </div>
       <CardHeader>
         <CardTitle className="text-xl">{product.name}</CardTitle>
-        <Badge variant="secondary" className="self-start mt-1">{product.category}</Badge>
         {product.description && <p className="text-sm text-muted-foreground line-clamp-2 mt-2">{product.description}</p>}
       </CardHeader>
       <CardContent className="flex flex-col flex-grow">
