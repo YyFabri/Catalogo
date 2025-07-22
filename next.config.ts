@@ -40,6 +40,12 @@ const nextConfig: NextConfig = {
         hostname: 'chedrauimx.vtexassets.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'industriaslitoral.com.ar',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
