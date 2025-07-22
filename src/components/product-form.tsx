@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,9 +20,11 @@ const variantSchema = z.object({
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'El nombre debe tener al menos 2 caracteres.' }),
+  description: z.string().optional(),
   price: z.coerce.number().positive({ message: 'El precio debe ser un número positivo.' }),
   imageUrl: z.string().url({ message: 'Por favor, introduce una URL de imagen válida.' }),
   category: z.string().min(2, { message: 'La categoría debe tener al menos 2 caracteres.' }),
+  inStock: z.boolean().default(false),
   variants: z.array(variantSchema).default([]),
 });
 
@@ -37,9 +40,11 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: initialData?.name || '',
+      description: initialData?.description || '',
       price: initialData?.price || 0,
       imageUrl: initialData?.imageUrl || 'https://placehold.co/600x400.png',
       category: initialData?.category || '',
+      inStock: initialData?.inStock || false,
       variants: initialData?.variants || [],
     },
   });
@@ -87,6 +92,22 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
                   <FormControl>
                     <Input placeholder="Ej: 'Buzo de punto acogedor'" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Descripción</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Describe tu producto..." {...field} />
+                  </FormControl>
+                   <FormDescription>
+                        Una buena descripción ayuda a los clientes a entender mejor el producto.
+                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -140,52 +161,98 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle className="text-lg">Variantes del Producto</CardTitle>
-                      <CardDescription>Añade y gestiona las versiones disponibles (ej. color, talle). Si no hay variantes, el producto se considerará "Sin Stock".</CardDescription>
+                      <CardTitle className="text-lg">Variantes y Stock</CardTitle>
+                      <CardDescription>
+                         Añade variantes (color, talle) o gestiona el stock general.
+                      </CardDescription>
                     </div>
-                     <Button type="button" size="sm" onClick={addNewVariant}>
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Añadir
-                      </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  {fields.length === 0 ? (
-                    <p className="text-sm text-center text-muted-foreground py-4">No hay variantes. Haz clic en "Añadir" para crear una.</p>
-                  ) : (
-                    fields.map((field, index) => (
-                      <div key={field.id} className="flex items-center gap-4 p-3 rounded-md border bg-background">
-                         <FormField
-                            control={form.control}
-                            name={`variants.${index}.name`}
-                            render={({ field }) => (
-                              <FormItem className="flex-grow">
-                                <FormLabel className="sr-only">Nombre de Variante</FormLabel>
-                                <FormControl>
-                                  <Input placeholder={`Variante ${index + 1} (ej: Rojo)`} {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                           <FormField
-                            control={form.control}
-                            name={`variants.${index}.inStock`}
-                            render={({ field }) => (
-                              <FormItem className="flex flex-col items-center gap-2">
-                                <FormLabel className="text-xs">En Stock</FormLabel>
-                                <FormControl>
-                                  <Switch checked={field.value} onCheckedChange={field.onChange} />
-                                </FormControl>
-                              </FormItem>
-                            )}
-                          />
-                          <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
+                <CardContent className="space-y-4 pt-4">
+                  <div className="flex items-center justify-between rounded-lg border bg-background p-4">
+                     <div>
+                        <FormLabel htmlFor="product-stock">Stock General</FormLabel>
+                        <FormDescription>
+                            Actívalo si el producto no tiene variantes y está disponible.
+                        </FormDescription>
+                      </div>
+                      <FormField
+                          control={form.control}
+                          name="inStock"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Switch 
+                                  id="product-stock"
+                                  checked={field.value} 
+                                  onCheckedChange={field.onChange} 
+                                  disabled={fields.length > 0}
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                  </div>
+
+
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-muted/50 px-2 text-muted-foreground">O</span>
+                    </div>
+                   </div>
+
+                  <div className="space-y-2">
+                     <div className="flex items-center justify-between">
+                         <div>
+                            <h4 className="text-sm font-medium">Variantes Específicas</h4>
+                             <p className="text-sm text-muted-foreground">Añade versiones si el producto viene en distintos tipos.</p>
+                         </div>
+                         <Button type="button" size="sm" onClick={addNewVariant}>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Añadir Variante
                           </Button>
                       </div>
-                    ))
-                  )}
+
+                      {fields.length === 0 ? (
+                        <p className="text-sm text-center text-muted-foreground py-4">No hay variantes.</p>
+                      ) : (
+                        fields.map((field, index) => (
+                          <div key={field.id} className="flex items-center gap-4 p-3 rounded-md border bg-background">
+                            <FormField
+                                control={form.control}
+                                name={`variants.${index}.name`}
+                                render={({ field }) => (
+                                  <FormItem className="flex-grow">
+                                    <FormLabel className="sr-only">Nombre de Variante</FormLabel>
+                                    <FormControl>
+                                      <Input placeholder={`Variante ${index + 1} (ej: Rojo)`} {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name={`variants.${index}.inStock`}
+                                render={({ field }) => (
+                                  <FormItem className="flex flex-col items-center gap-2">
+                                    <FormLabel className="text-xs">En Stock</FormLabel>
+                                    <FormControl>
+                                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                    </FormControl>
+                                  </FormItem>
+                                )}
+                              />
+                              <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)}>
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                          </div>
+                        ))
+                      )}
+                  </div>
                 </CardContent>
               </Card>
           </CardContent>

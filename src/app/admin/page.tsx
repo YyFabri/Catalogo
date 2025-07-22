@@ -19,14 +19,52 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { PlusCircle, Edit, Trash2, Search, ArrowLeft, LogOut } from 'lucide-react';
-import type { Product } from '@/lib/types';
+import { PlusCircle, Edit, Trash2, Search, ArrowLeft, LogOut, MoreHorizontal } from 'lucide-react';
+import type { Product, Variant } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { db, auth } from '@/lib/firebase';
-import { collection, onSnapshot, doc, deleteDoc, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, doc, deleteDoc, query, orderBy, updateDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+
+const VariantStockManager = ({ product, onStockChange }: { product: Product, onStockChange: (variantId: string, inStock: boolean) => void }) => {
+    return (
+        <Popover>
+            <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="h-8">
+                    <MoreHorizontal className="h-4 w-4 mr-2" />
+                     {product.variants.length} variante(s)
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-60">
+                <div className="grid gap-4">
+                    <div className="space-y-2">
+                        <h4 className="font-medium leading-none">Gestionar Stock</h4>
+                        <p className="text-sm text-muted-foreground">
+                            Activa o desactiva la disponibilidad de cada variante.
+                        </p>
+                    </div>
+                    <div className="grid gap-2">
+                       {product.variants.map(variant => (
+                         <div key={variant.id} className="grid grid-cols-3 items-center gap-4">
+                            <Label htmlFor={`stock-${variant.id}`} className="col-span-2 truncate">{variant.name}</Label>
+                            <Switch
+                                id={`stock-${variant.id}`}
+                                checked={variant.inStock}
+                                onCheckedChange={(checked) => onStockChange(variant.id, checked)}
+                            />
+                         </div>
+                       ))}
+                    </div>
+                </div>
+            </PopoverContent>
+        </Popover>
+    )
+}
 
 
 export default function AdminProductsPage() {
@@ -53,6 +91,40 @@ export default function AdminProductsPage() {
 
     return () => unsubscribe();
   }, []);
+  
+  const updateProductField = useCallback(async (productId: string, data: Partial<Product>) => {
+    const docRef = doc(db, 'products', productId);
+    try {
+        await updateDoc(docRef, data);
+    } catch(e) {
+        console.error("Error updating product:", e);
+        toast({ variant: 'destructive', title: 'Error', description: 'No se pudo actualizar el campo.'});
+    }
+  }, []);
+
+  const handlePriceChange = (productId: string, newPrice: string) => {
+    const price = parseFloat(newPrice);
+    if (!isNaN(price)) {
+      setProducts(prev => prev.map(p => p.id === productId ? {...p, price} : p));
+    }
+  };
+
+  const handlePriceBlur = async (productId: string, newPrice: number) => {
+    await updateProductField(productId, { price: newPrice });
+    toast({ title: 'Precio Actualizado', description: 'El nuevo precio ha sido guardado.'});
+  };
+
+  const handleVariantStockChange = async (productId: string, variantId: string, inStock: boolean) => {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+    
+    const updatedVariants = product.variants.map(v => v.id === variantId ? {...v, inStock} : v);
+    await updateProductField(productId, { variants: updatedVariants });
+  }
+  
+  const handleProductStockChange = async (productId: string, inStock: boolean) => {
+    await updateProductField(productId, { inStock });
+  }
 
   const handleLogout = async () => {
     try {
@@ -171,7 +243,7 @@ export default function AdminProductsPage() {
                           <TableHead className="w-[80px]">Imagen</TableHead>
                           <TableHead>Nombre</TableHead>
                           <TableHead>Categoría</TableHead>
-                          <TableHead>Precio</TableHead>
+                          <TableHead className="w-[120px]">Precio</TableHead>
                           <TableHead>Estado</TableHead>
                           <TableHead className="text-right">Acciones</TableHead>
                         </TableRow>
@@ -186,8 +258,7 @@ export default function AdminProductsPage() {
                         ) : (
                           filteredProducts.map((product) => {
                             const hasVariants = product.variants && product.variants.length > 0;
-                            const someInStock = hasVariants ? product.variants.some(v => v.inStock) : false;
-
+                            
                             return (
                               <TableRow key={product.id}>
                                 <TableCell>
@@ -204,14 +275,30 @@ export default function AdminProductsPage() {
                                 <TableCell>
                                   <Badge variant="secondary">{product.category}</Badge>
                                 </TableCell>
-                                <TableCell>${product.price.toFixed(2)}</TableCell>
+                                <TableCell>
+                                   <div className="relative">
+                                     <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                                     <Input 
+                                        type="number"
+                                        value={product.price.toString()}
+                                        onChange={(e) => handlePriceChange(product.id, e.target.value)}
+                                        onBlur={(e) => handlePriceBlur(product.id, parseFloat(e.target.value))}
+                                        className="pl-6 h-9"
+                                     />
+                                   </div>
+                                </TableCell>
                                 <TableCell>
                                   {hasVariants ? (
-                                    <Badge variant={someInStock ? 'default' : 'destructive'} className="bg-blue-100 text-blue-800">
-                                      {product.variants.length} variante(s)
-                                    </Badge>
+                                    <VariantStockManager product={product} onStockChange={(variantId, inStock) => handleVariantStockChange(product.id, variantId, inStock)} />
                                   ) : (
-                                     <Badge variant="destructive">Sin Stock</Badge>
+                                     <div className="flex items-center space-x-2">
+                                        <Switch
+                                            id={`stock-${product.id}`}
+                                            checked={product.inStock}
+                                            onCheckedChange={(checked) => handleProductStockChange(product.id, checked)}
+                                        />
+                                        <Label htmlFor={`stock-${product.id}`}>{product.inStock ? 'En Stock' : 'Sin Stock'}</Label>
+                                    </div>
                                   )}
                                 </TableCell>
                                 <TableCell className="text-right">
