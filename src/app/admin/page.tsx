@@ -19,7 +19,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { PlusCircle, Edit, Trash2, Search, ArrowLeft, LogOut, MoreHorizontal } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Search, ArrowLeft, LogOut, MoreHorizontal, Check, X } from 'lucide-react';
 import type { Product, Variant } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
 import { useState, useMemo, useEffect, useCallback } from 'react';
@@ -72,6 +72,8 @@ export default function AdminProductsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
+  const [tempPrice, setTempPrice] = useState<string>('');
   const router = useRouter();
 
   useEffect(() => {
@@ -102,16 +104,25 @@ export default function AdminProductsPage() {
     }
   }, []);
 
-  const handlePriceChange = (productId: string, newPrice: string) => {
-    const price = parseFloat(newPrice);
-    if (!isNaN(price)) {
-      setProducts(prev => prev.map(p => p.id === productId ? {...p, price} : p));
-    }
+  const handlePriceEdit = (product: Product) => {
+    setEditingPriceId(product.id);
+    setTempPrice(product.price.toString());
+  };
+  
+  const handlePriceCancel = () => {
+    setEditingPriceId(null);
+    setTempPrice('');
   };
 
-  const handlePriceBlur = async (productId: string, newPrice: number) => {
-    await updateProductField(productId, { price: newPrice });
-    toast({ title: 'Precio Actualizado', description: 'El nuevo precio ha sido guardado.'});
+  const handlePriceSave = async (productId: string) => {
+    const price = parseFloat(tempPrice);
+    if (!isNaN(price) && price >= 0) {
+      await updateProductField(productId, { price });
+      toast({ title: 'Precio Actualizado', description: 'El nuevo precio ha sido guardado.'});
+      handlePriceCancel();
+    } else {
+      toast({ variant: 'destructive', title: 'Error', description: 'Por favor, introduce un precio válido.'});
+    }
   };
 
   const handleVariantStockChange = async (productId: string, variantId: string, inStock: boolean) => {
@@ -243,7 +254,7 @@ export default function AdminProductsPage() {
                           <TableHead className="w-[80px]">Imagen</TableHead>
                           <TableHead>Nombre</TableHead>
                           <TableHead>Categoría</TableHead>
-                          <TableHead className="w-[120px]">Precio</TableHead>
+                          <TableHead className="w-[150px]">Precio</TableHead>
                           <TableHead>Estado</TableHead>
                           <TableHead className="text-right">Acciones</TableHead>
                         </TableRow>
@@ -276,16 +287,31 @@ export default function AdminProductsPage() {
                                   <Badge variant="secondary">{product.category}</Badge>
                                 </TableCell>
                                 <TableCell>
-                                   <div className="relative">
-                                     <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
-                                     <Input 
-                                        type="number"
-                                        value={product.price.toString()}
-                                        onChange={(e) => handlePriceChange(product.id, e.target.value)}
-                                        onBlur={(e) => handlePriceBlur(product.id, parseFloat(e.target.value))}
-                                        className="pl-6 h-9"
-                                     />
-                                   </div>
+                                   {editingPriceId === product.id ? (
+                                     <div className="flex items-center gap-1">
+                                       <Input 
+                                          type="number"
+                                          value={tempPrice}
+                                          onChange={(e) => setTempPrice(e.target.value)}
+                                          className="h-9 w-24"
+                                          autoFocus
+                                          onKeyDown={(e) => e.key === 'Enter' && handlePriceSave(product.id)}
+                                       />
+                                       <Button variant="ghost" size="icon" onClick={() => handlePriceSave(product.id)}>
+                                         <Check className="h-4 w-4 text-green-600" />
+                                       </Button>
+                                       <Button variant="ghost" size="icon" onClick={handlePriceCancel}>
+                                         <X className="h-4 w-4 text-destructive" />
+                                       </Button>
+                                     </div>
+                                   ) : (
+                                     <div className="flex items-center gap-2">
+                                       <span>${product.price.toFixed(2)}</span>
+                                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handlePriceEdit(product)}>
+                                         <Edit className="h-3 w-3" />
+                                       </Button>
+                                     </div>
+                                   )}
                                 </TableCell>
                                 <TableCell>
                                   {hasVariants ? (
