@@ -16,7 +16,7 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 export default function EditProductPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const { id } = params;
+  const { id } = use(params);
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   

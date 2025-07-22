@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -10,7 +11,12 @@ import { Switch } from '@/components/ui/switch';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Product } from '@/lib/types';
-import { PlusCircle, Trash2 } from 'lucide-react';
+import { PlusCircle, Trash2, Upload } from 'lucide-react';
+import { useState } from 'react';
+import { storage } from '@/lib/firebase';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { Progress } from './ui/progress';
+import Image from 'next/image';
 
 const variantSchema = z.object({
   id: z.string(),
@@ -22,7 +28,7 @@ const formSchema = z.object({
   name: z.string().min(2, { message: 'El nombre debe tener al menos 2 caracteres.' }),
   description: z.string().optional(),
   price: z.coerce.number().positive({ message: 'El precio debe ser un número positivo.' }),
-  imageUrl: z.string().url({ message: 'Por favor, introduce una URL de imagen válida.' }),
+  imageUrl: z.string().url({ message: 'Por favor, sube una imagen válida.' }),
   category: z.string().min(2, { message: 'La categoría debe tener al menos 2 caracteres.' }),
   inStock: z.boolean().default(false),
   variants: z.array(variantSchema).default([]),
@@ -36,13 +42,18 @@ interface ProductFormProps {
 }
 
 export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [imagePreview, setImagePreview] = useState<string | null>(initialData?.imageUrl || null);
+
+
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: initialData?.name || '',
       description: initialData?.description || '',
       price: initialData?.price || 0,
-      imageUrl: initialData?.imageUrl || 'https://placehold.co/600x400.png',
+      imageUrl: initialData?.imageUrl || '',
       category: initialData?.category || '',
       inStock: initialData?.inStock || false,
       variants: initialData?.variants || [],
@@ -55,6 +66,38 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
   });
 
   const isEditing = !!initialData;
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImagePreview(URL.createObjectURL(file));
+
+    const storageRef = ref(storage, `products/${Date.now()}_${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    uploadTask.on('state_changed',
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setUploadProgress(progress);
+      },
+      (error) => {
+        console.error("Upload failed:", error);
+        setIsUploading(false);
+        form.setError("imageUrl", { type: "manual", message: "Error al subir la imagen. Inténtalo de nuevo." });
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          form.setValue('imageUrl', downloadURL, { shouldValidate: true });
+          setIsUploading(false);
+        });
+      }
+    );
+  };
+
 
   const handleSubmit = (data: ProductFormValues) => {
     const finalData = {
@@ -141,20 +184,36 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
                     />
              </div>
              <FormField
-                    control={form.control}
-                    name="imageUrl"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>URL de la Imagen</FormLabel>
-                        <FormControl>
-                            <Input placeholder="https://placehold.co/600x400.png" {...field} />
-                        </FormControl>
-                         <FormDescription>
-                            Puedes usar <a href="https://placehold.co" target="_blank" rel="noopener noreferrer" className="underline">placehold.co</a> para imágenes de prueba.
-                        </FormDescription>
-                        <FormMessage />
-                        </FormItem>
-                    )}
+              control={form.control}
+              name="imageUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Imagen del Producto</FormLabel>
+                  <FormControl>
+                     <div className="flex items-center gap-4">
+                        <label htmlFor="file-upload" className="flex-grow cursor-pointer">
+                            <div className="flex items-center justify-center w-full h-32 px-4 transition bg-background border-2 border-dashed rounded-md appearance-none hover:border-primary">
+                                <span className="flex items-center space-x-2">
+                                <Upload className="w-6 h-6 text-muted-foreground" />
+                                <span className="font-medium text-muted-foreground">
+                                    {isUploading ? `Subiendo... ${uploadProgress.toFixed(0)}%` : 'Haz clic para subir o arrastra una imagen'}
+                                </span>
+                                </span>
+                            </div>
+                            <Input id="file-upload" type="file" className="sr-only" onChange={handleFileChange} accept="image/png, image/jpeg, image/webp" disabled={isUploading} />
+                         </label>
+                         {imagePreview && (
+                            <div className="w-32 h-32 flex-shrink-0 relative">
+                                <Image src={imagePreview} alt="Vista previa" fill className="rounded-md object-cover" />
+                            </div>
+                         )}
+                     </div>
+                  </FormControl>
+                  {isUploading && <Progress value={uploadProgress} className="w-full mt-2" />}
+                  <FormDescription>Sube una imagen para tu producto (PNG, JPG, WEBP).</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
            
               <Card className="bg-muted/50">
@@ -257,8 +316,8 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
               </Card>
           </CardContent>
           <CardFooter>
-            <Button type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? 'Guardando...' : (isEditing ? 'Guardar Cambios' : 'Crear Producto')}
+            <Button type="submit" disabled={form.formState.isSubmitting || isUploading}>
+              {isUploading ? 'Subiendo imagen...' : (form.formState.isSubmitting ? 'Guardando...' : (isEditing ? 'Guardar Cambios' : 'Crear Producto'))}
             </Button>
           </CardFooter>
         </form>
