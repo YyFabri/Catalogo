@@ -28,6 +28,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'acdn-us.mitiendanube.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
