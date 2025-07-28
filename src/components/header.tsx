@@ -30,7 +30,7 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center">
+      <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2 ml-2.5">
           <Image
             src="/logo2.png"
@@ -40,8 +40,8 @@ const Header = () => {
             className="object-contain"
           />
         </Link>
-        <div className="flex flex-1 items-center justify-end space-x-4">
-          <nav className="flex items-center space-x-2">
+        <div className="flex items-center">
+          <nav className="flex items-center mr-2.5">
             {user ? (
                <Button asChild variant="secondary">
                 <Link href="/admin">
