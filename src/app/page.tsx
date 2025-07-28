@@ -175,18 +175,13 @@ export default function Home() {
       <main className="flex-1">
         <section className="container mx-auto px-4 py-8 md:py-12">
           <div className="text-center mb-8 flex flex-col items-center">
-            {/* 
-              TODO: Replace with your logo image.
-              1. Upload your logo to the "Assets" folder in the left panel.
-              2. Right-click the uploaded file and select "Copy Path".
-              3. Replace "/placeholder-logo.png" with the copied path.
-            */}
             <Image 
-              src="/placeholder-logo.png" 
+              src="/home/user/studio/Assets/logo.png" 
               alt="Carmelo Distribuidora Logo"
               width={400} 
               height={150}
               className="object-contain"
+              priority
             />
             <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground sm:text-xl">
               Explora nuestra cuidada colección de productos de alta calidad.

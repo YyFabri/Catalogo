@@ -32,14 +32,8 @@ const Header = () => {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
         <Link href="/" className="flex items-center gap-2 mr-6">
-           {/* 
-              TODO: Replace with your logo image.
-              1. Upload your logo to the "Assets" folder in the left panel.
-              2. Right-click the uploaded file and select "Copy Path".
-              3. Replace "/placeholder-logo.png" with the copied path.
-            */}
           <Image
-            src="/placeholder-logo.png"
+            src="/home/user/studio/Assets/logo.png"
             alt="Carmelo Distribuidora Logo"
             width={150}
             height={40}
