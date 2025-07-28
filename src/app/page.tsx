@@ -68,7 +68,7 @@ const ProductCard = ({ product, onSelect }: { product: Product; onSelect: (produ
         <div className="flex-grow">
           <p className="text-muted-foreground text-2xl font-semibold mb-4 text-foreground">${product.price.toFixed(2)}</p>
         </div>
-        <Badge className={`self-start ${inStock ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'} text-white`}>
+        <Badge className={`self-start ${inStock ? 'bg-accent text-accent-foreground' : 'bg-red-600 hover:bg-red-700 text-white'}`}>
           {hasVariants && inStock ? 'Ver variantes' : inStock ? 'En Stock' : 'Sin Stock'}
         </Badge>
       </CardContent>
@@ -108,7 +108,7 @@ const VariantModal = ({ product, onClose }: { product: Product, onClose: () => v
                             {product.variants.filter(v => v.inStock).map(variant => (
                                 <li key={variant.id} className="flex items-center justify-between p-2 rounded-md bg-muted/50">
                                   <span>{variant.name}</span>
-                                  <Badge className="bg-green-600 text-white">
+                                  <Badge className="bg-accent text-accent-foreground">
                                     En Stock
                                   </Badge>
                                 </li>
@@ -116,7 +116,7 @@ const VariantModal = ({ product, onClose }: { product: Product, onClose: () => v
                         </ul>
                     </div>
                 ) : (
-                   <Badge className="bg-green-600 text-white">En Stock</Badge>
+                   <Badge className="bg-accent text-accent-foreground">En Stock</Badge>
                 )}
             </div>
         </div>
