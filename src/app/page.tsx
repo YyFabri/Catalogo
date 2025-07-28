@@ -173,15 +173,7 @@ export default function Home() {
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-1">
-        <section className="relative container mx-auto px-4 py-8 md:py-12 overflow-hidden">
-           <div
-            aria-hidden="true"
-            className="absolute -top-40 -left-12 h-96 w-96 rounded-full bg-primary/10 blur-3xl -z-10"
-            />
-            <div
-            aria-hidden="true"
-            className="absolute -bottom-40 -right-12 h-96 w-96 rounded-full bg-accent/10 blur-3xl -z-10"
-            />
+        <section className="container mx-auto px-4 py-8 md:py-12">
           <div className="relative text-center mb-8 flex flex-col items-center">
             <Image 
               src="/logo.png" 
