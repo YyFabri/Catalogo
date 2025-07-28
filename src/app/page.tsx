@@ -125,23 +125,6 @@ const VariantModal = ({ product, onClose }: { product: Product, onClose: () => v
   );
 };
 
-const Logo = () => (
-    <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" className="w-auto h-32 mx-auto">
-        <g transform="translate(0 -20)">
-            <path d="M181.87,45.87C170.89,45.87,162,54.76,162,65.73s8.89,20,19.87,20c8.33,0,15.38-5.11,18.33-12.33h-18.11v-15h29.56 c0.22,1.56,0.44,3.11,0.44,4.78c0,23.33-15.67,40-39.22,40s-40-16.67-40-40,16.67-40,40-40c9.11,0,17.44,3.11,24.11,8.44 l-11,11c-4-3.56-9.11-5.67-15.11-5.67Z" fill="#F06292" transform="translate(13 -5) scale(1.1) rotate(-15 165 65)"/>
-            <path d="M218.13,124.13c11,0,19.87-8.89,19.87-19.87s-8.89-20-19.87-20c-8.33,0-15.38,5.11-18.33,12.33h18.11v15h-29.56 c-0.22-1.56-0.44-3.11-0.44-4.78c0-23.33,15.67-40,39.22-40s40,16.67,40,40-16.67,40-40,40c-9.11,0-17.44-3.11-24.11-8.44 l11-11c4,3.56,9.11,5.67,15.11,5.67Z" fill="#81D4FA" transform="translate(-13 5) scale(1.1) rotate(-15 235 105)"/>
-            <style>
-                @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap');
-            </style>
-            <text x="50%" y="150" textAnchor="middle" fontSize="48" fontFamily="Montserrat, sans-serif" fontWeight="800" fill="#2c3e50">CARMELO</text>
-            <text x="50%" y="185" textAnchor="middle" fontSize="24" fontFamily="Montserrat, sans-serif" fontWeight="400" fill="#F06292" letterSpacing="2">
-                <tspan fill="#F06292" >&mdash;</tspan>
-                <tspan dx="5" fill="#81D4FA">Distribuidora</tspan>
-                <tspan dx="5" fill="#F06292">&mdash;</tspan>
-            </text>
-        </g>
-    </svg>
-)
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -192,7 +175,9 @@ export default function Home() {
       <main className="flex-1">
         <section className="container mx-auto px-4 py-8 md:py-12">
           <div className="text-center mb-8">
-            <Logo />
+            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl text-foreground">
+              Carmelo Distribuidora
+            </h1>
             <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground sm:text-xl">
               Explora nuestra cuidada colección de productos de alta calidad.
             </p>
