@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { User } from 'lucide-react';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import Image from 'next/image';
 
 const Header = () => {
   const [user, setUser] = useState<FirebaseUser | null>(null);
@@ -31,7 +32,19 @@ const Header = () => {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
         <Link href="/" className="flex items-center gap-2 mr-6">
-          <span className="font-bold text-xl text-foreground">Carmelo Distribuidora</span>
+           {/* 
+              TODO: Replace with your logo image.
+              1. Upload your logo to the "Assets" folder in the left panel.
+              2. Right-click the uploaded file and select "Copy Path".
+              3. Replace "/placeholder-logo.png" with the copied path.
+            */}
+          <Image
+            src="/placeholder-logo.png"
+            alt="Carmelo Distribuidora Logo"
+            width={150}
+            height={40}
+            className="object-contain"
+          />
         </Link>
         <div className="flex flex-1 items-center justify-end space-x-4">
           <nav className="flex items-center space-x-2">
