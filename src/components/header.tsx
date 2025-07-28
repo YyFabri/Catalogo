@@ -10,11 +10,14 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
 const Logo = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" className="h-8 w-8">
-      <path fill="#F06292" d="M128 128V32.3C128 32.3 84.4 35.8 62 80c-22.4 44.2 18 96 18 96h48Z"/>
-      <path fill="#81D4FA" d="M128 128v95.7c0 0 43.6 3.5 66-40.7s-18-96-18-96h-48Z"/>
+    <svg viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg" className="h-8 w-auto">
+        <g transform="scale(0.5)">
+            <path d="M181.87,45.87C170.89,45.87,162,54.76,162,65.73s8.89,20,19.87,20c8.33,0,15.38-5.11,18.33-12.33h-18.11v-15h29.56 c0.22,1.56,0.44,3.11,0.44,4.78c0,23.33-15.67,40-39.22,40s-40-16.67-40-40,16.67-40,40-40c9.11,0,17.44,3.11,24.11,8.44 l-11,11c-4-3.56-9.11-5.67-15.11-5.67Z" fill="#F06292" transform="translate(13 -5) scale(1.1) rotate(-15 165 65)"/>
+            <path d="M218.13,124.13c11,0,19.87-8.89,19.87-19.87s-8.89-20-19.87-20c-8.33,0-15.38,5.11-18.33,12.33h18.11v15h-29.56 c-0.22-1.56-0.44-3.11-0.44-4.78c0-23.33,15.67-40,39.22-40s40,16.67,40,40-16.67,40-40,40c-9.11,0-17.44-3.11-24.11-8.44 l11-11c4,3.56,9.11,5.67,15.11,5.67Z" fill="#81D4FA" transform="translate(-13 5) scale(1.1) rotate(-15 235 105)"/>
+        </g>
     </svg>
 )
+
 
 const Header = () => {
   const [user, setUser] = useState<FirebaseUser | null>(null);
