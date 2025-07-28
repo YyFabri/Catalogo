@@ -125,6 +125,12 @@ const VariantModal = ({ product, onClose }: { product: Product, onClose: () => v
   );
 };
 
+const Logo = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" className="h-24 w-24 mx-auto">
+      <path fill="#F06292" d="M128 128V32.3C128 32.3 84.4 35.8 62 80c-22.4 44.2 18 96 18 96h48Z"/>
+      <path fill="#81D4FA" d="M128 128v95.7c0 0 43.6 3.5 66-40.7s-18-96-18-96h-48Z"/>
+    </svg>
+)
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -150,14 +156,10 @@ export default function Home() {
   }, []);
 
   const handleSelectProduct = (product: Product) => {
-    // Only show modal if there are variants to select
-    // or if it's a single product in stock. For single products, modal just shows info.
     const hasVariants = product.variants && product.variants.length > 0;
     if (hasVariants) {
         setSelectedProduct(product);
     } else if (product.inStock) {
-        // Here we could open a simpler modal or just not do anything.
-        // For consistency, let's open the modal which will just show "En Stock".
         setSelectedProduct(product);
     }
   }
@@ -179,10 +181,8 @@ export default function Home() {
       <main className="flex-1">
         <section className="container mx-auto px-4 py-8 md:py-12">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl font-headline">
-              Nuestro Catálogo
-            </h1>
-            <p className="mt-3 max-w-2xl mx-auto text-lg text-muted-foreground sm:text-xl">
+            <Logo />
+            <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground sm:text-xl">
               Explora nuestra cuidada colección de productos de alta calidad.
             </p>
           </div>
