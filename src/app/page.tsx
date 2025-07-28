@@ -176,7 +176,7 @@ export default function Home() {
         <section className="container mx-auto px-4 py-8 md:py-12">
           <div className="text-center mb-8 flex flex-col items-center">
             <Image 
-              src="/home/user/studio/Assets/logo.png" 
+              src="/logo.png" 
               alt="Carmelo Distribuidora Logo"
               width={400} 
               height={150}
