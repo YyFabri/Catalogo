@@ -66,9 +66,9 @@ const ProductCard = ({ product, onSelect }: { product: Product; onSelect: (produ
       </CardHeader>
       <CardContent className="flex flex-col flex-grow">
         <div className="flex-grow">
-          <p className="text-muted-foreground text-2xl font-semibold mb-4">${product.price.toFixed(2)}</p>
+          <p className="text-muted-foreground text-2xl font-semibold mb-4 text-foreground">${product.price.toFixed(2)}</p>
         </div>
-        <Badge variant={inStock ? 'default' : 'destructive'} className="self-start bg-accent text-accent-foreground">
+        <Badge className={`self-start ${inStock ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'} text-white`}>
           {hasVariants && inStock ? 'Ver variantes' : inStock ? 'En Stock' : 'Sin Stock'}
         </Badge>
       </CardContent>
@@ -98,7 +98,7 @@ const VariantModal = ({ product, onClose }: { product: Product, onClose: () => v
             </div>
             <div className="flex-1">
                 <h2 className="text-2xl font-bold mb-2">{product.name}</h2>
-                <p className="text-xl font-semibold text-primary mb-4">${product.price.toFixed(2)}</p>
+                <p className="text-xl font-semibold text-foreground mb-4">${product.price.toFixed(2)}</p>
                  {product.description && <p className="text-sm text-muted-foreground mb-4">{product.description}</p>}
                 
                 {hasVariants ? (
@@ -108,7 +108,7 @@ const VariantModal = ({ product, onClose }: { product: Product, onClose: () => v
                             {product.variants.filter(v => v.inStock).map(variant => (
                                 <li key={variant.id} className="flex items-center justify-between p-2 rounded-md bg-muted/50">
                                   <span>{variant.name}</span>
-                                  <Badge variant='default' className="bg-accent text-accent-foreground">
+                                  <Badge className="bg-green-600 text-white">
                                     En Stock
                                   </Badge>
                                 </li>
@@ -116,7 +116,7 @@ const VariantModal = ({ product, onClose }: { product: Product, onClose: () => v
                         </ul>
                     </div>
                 ) : (
-                   <Badge variant='default' className="bg-accent text-accent-foreground">En Stock</Badge>
+                   <Badge className="bg-green-600 text-white">En Stock</Badge>
                 )}
             </div>
         </div>
@@ -221,7 +221,7 @@ export default function Home() {
       </main>
       <footer className="bg-muted py-6">
         <div className="container mx-auto text-center text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Catálogo StockWise. Todos los derechos reservados.</p>
+          <p>&copy; {new Date().getFullYear()} Carmelo Distribuidora. Todos los derechos reservados.</p>
         </div>
       </footer>
       {selectedProduct && <VariantModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />}

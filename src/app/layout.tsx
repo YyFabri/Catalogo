@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'Catálogo StockWise',
+  title: 'Carmelo Distribuidora',
   description: 'Gestiona tu catálogo de productos con facilidad.',
 };
 

@@ -5,9 +5,16 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ShoppingBag, User } from 'lucide-react';
+import { User } from 'lucide-react';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+
+const Logo = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" className="h-8 w-8">
+      <path fill="#F06292" d="M128 128V32.3C128 32.3 84.4 35.8 62 80c-22.4 44.2 18 96 18 96h48Z"/>
+      <path fill="#81D4FA" d="M128 128v95.7c0 0 43.6 3.5 66-40.7s-18-96-18-96h-48Z"/>
+    </svg>
+)
 
 const Header = () => {
   const [user, setUser] = useState<FirebaseUser | null>(null);
@@ -29,10 +36,10 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center">
-        <Link href="/" className="flex items-center gap-2 mr-6 font-bold text-lg">
-          <ShoppingBag className="h-6 w-6 text-primary" style={{color: 'hsl(var(--accent))'}} />
-          StockWise
+      <div className="container flex h-16 items-center">
+        <Link href="/" className="flex items-center gap-2 mr-6">
+           <Logo/>
+          <span className="font-bold text-xl text-foreground">Carmelo Distribuidora</span>
         </Link>
         <div className="flex flex-1 items-center justify-end space-x-4">
           <nav className="flex items-center space-x-2">
