@@ -12,7 +12,8 @@ import { ArrowLeft, Loader2, UploadCloud, WandSparkles, AlertTriangle, CheckCirc
 import { extractProductsFromPdf } from '@/ai/flows/extract-products-flow';
 import type { ExtractProductsOutput } from '@/ai/flows/extract-products-types';
 import { db } from '@/lib/firebase';
-import { collection, writeBatch, getDocs, query, where, addDoc } from 'firebase/firestore';
+import { collection, writeBatch, getDocs, query, where, doc } from 'firebase/firestore';
+import { Badge } from '@/components/ui/badge';
 
 type ExtractedProduct = ExtractProductsOutput['products'][0];
 
