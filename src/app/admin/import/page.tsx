@@ -11,12 +11,15 @@ import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Loader2, UploadCloud, WandSparkles, AlertTriangle, CheckCircle2, FileText } from 'lucide-react';
 import { extractProductsFromPdf } from '@/ai/flows/extract-products-flow';
 import type { ExtractProductsOutput } from '@/ai/flows/extract-products-types';
+import { db } from '@/lib/firebase';
+import { collection, writeBatch, getDocs, query, where, addDoc } from 'firebase/firestore';
 
 type ExtractedProduct = ExtractProductsOutput['products'][0];
 
 export default function ImportPage() {
   const [file, setFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [extractedData, setExtractedData] = useState<ExtractedProduct[] | null>(null);
   const router = useRouter();
   const { toast } = useToast();
@@ -25,6 +28,7 @@ export default function ImportPage() {
     const selectedFile = event.target.files?.[0];
     if (selectedFile && selectedFile.type === 'application/pdf') {
       setFile(selectedFile);
+      setExtractedData(null); // Reset data when new file is selected
     } else {
       toast({
         variant: 'destructive',
@@ -65,7 +69,7 @@ export default function ImportPage() {
       toast({
         variant: 'default',
         title: 'Extracción completada',
-        description: 'Revisa los productos extraídos y confirma los cambios.',
+        description: `Se encontraron ${result.products.length} productos. Revisa y confirma los cambios.`,
       });
     } catch (error) {
       console.error('Error processing PDF:', error);
@@ -79,15 +83,66 @@ export default function ImportPage() {
     }
   };
 
-  const handleConfirmChanges = () => {
-    // Aquí iría la lógica para guardar los cambios en Firestore.
-    // Por ahora, solo mostraremos una notificación y redirigimos.
-    toast({
-        title: '¡Éxito!',
-        description: 'Los cambios han sido aplicados a tu catálogo. (Simulación)'
-    });
-    router.push('/admin');
-  }
+  const handleConfirmChanges = async () => {
+    if (!extractedData) return;
+    
+    setIsSaving(true);
+    toast({ title: 'Guardando cambios...', description: 'Aplicando actualizaciones al catálogo.' });
+    
+    try {
+        const batch = writeBatch(db);
+        const productsRef = collection(db, 'products');
+        let newCount = 0;
+        let updatedCount = 0;
+
+        for (const product of extractedData) {
+            if (product.isNew) {
+                // Crear nuevo producto
+                const newDocRef = doc(productsRef); // Crea una referencia con un ID único
+                batch.set(newDocRef, {
+                    name: product.name,
+                    price: product.price,
+                    quantity: product.quantity || null,
+                    category: 'Importado',
+                    imageUrl: 'https://placehold.co/400x400.png',
+                    imageHint: product.name.split(' ').slice(0, 2).join(' ').toLowerCase(),
+                    description: '',
+                    inStock: true,
+                    variants: []
+                });
+                newCount++;
+            } else {
+                // Actualizar producto existente
+                const q = query(productsRef, where("name", "==", product.name));
+                const querySnapshot = await getDocs(q);
+                querySnapshot.forEach((doc) => {
+                    batch.update(doc.ref, { 
+                        price: product.price,
+                        quantity: product.quantity || null
+                    });
+                    updatedCount++;
+                });
+            }
+        }
+        
+        await batch.commit();
+
+        toast({
+            title: '¡Éxito!',
+            description: `${newCount} producto(s) creado(s) y ${updatedCount} producto(s) actualizado(s).`
+        });
+        router.push('/admin');
+
+    } catch (error) {
+        console.error("Error saving changes:", error);
+        toast({
+            variant: 'destructive',
+            title: 'Error al guardar',
+            description: 'No se pudieron aplicar los cambios. Inténtalo de nuevo.',
+        });
+        setIsSaving(false);
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto py-8 px-4">
@@ -127,7 +182,7 @@ export default function ImportPage() {
               className="sr-only"
               onChange={handleFileChange}
               accept="application/pdf"
-              disabled={isProcessing}
+              disabled={isProcessing || isSaving}
             />
              <label htmlFor="pdf-upload" className="mt-4 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring cursor-pointer">
               {isProcessing ? 'Procesando...' : 'Seleccionar archivo'}
@@ -142,7 +197,7 @@ export default function ImportPage() {
 
           <Button
             onClick={handleProcessPdf}
-            disabled={!file || isProcessing}
+            disabled={!file || isProcessing || isSaving}
             className="w-full"
           >
             {isProcessing ? (
@@ -160,26 +215,30 @@ export default function ImportPage() {
                     <CardDescription>Revisa los cambios propuestos antes de guardarlos en tu catálogo.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <ul className="space-y-3">
+                    <ul className="space-y-3 max-h-72 overflow-y-auto pr-2">
                         {extractedData.map((product, index) => (
                            <li key={index} className="flex items-center justify-between p-3 rounded-md bg-muted/50">
                                 <div className="flex items-center gap-3">
                                    {product.isNew ? (
-                                        <CheckCircle2 className="h-5 w-5 text-green-500" />
+                                        <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
                                    ) : (
-                                        <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                                        <AlertTriangle className="h-5 w-5 text-yellow-500 flex-shrink-0" />
                                    )}
-                                   <div>
-                                       <p className="font-medium">{product.name}</p>
+                                   <div className="min-w-0">
+                                       <p className="font-medium truncate">{product.name}</p>
                                        <p className="text-sm text-muted-foreground">${product.price.toFixed(2)} - {product.isNew ? 'Nuevo producto a crear' : 'Precio a actualizar'}</p>
                                    </div>
                                 </div>
+                                {product.quantity && <Badge variant="secondary">x{product.quantity}</Badge>}
                            </li>
                         ))}
                     </ul>
                 </CardContent>
                 <div className="p-6 pt-0 flex justify-end">
-                    <Button onClick={handleConfirmChanges}>Confirmar y Guardar Cambios</Button>
+                    <Button onClick={handleConfirmChanges} disabled={isSaving || isProcessing}>
+                         {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Confirmar y Guardar Cambios
+                    </Button>
                 </div>
             </Card>
           )}

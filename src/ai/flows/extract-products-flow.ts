@@ -47,7 +47,7 @@ const extractProductsFlow = ai.defineFlow(
       prompt: `
         Eres un asistente de gestión de catálogos experto.
         Tu tarea es analizar el siguiente documento PDF, que es un catálogo de productos.
-        Debes extraer cada producto que encuentres con su nombre, precio y cantidad de unidades. NADA MÁS.
+        Debes extraer CADA UNO de los productos que encuentres con su nombre, precio y cantidad de unidades. NADA MÁS. Revisa el documento completo de principio a fin para no omitir ninguno.
         Por ejemplo, si ves un producto llamado "Melbourne" con un precio de "$1292.10" y una etiqueta "x24u", debes extraer: name: "Melbourne", price: 1292.10, quantity: 24.
 
         Aquí tienes una lista de productos que ya existen en la base de datos:
@@ -67,7 +67,7 @@ const extractProductsFlow = ai.defineFlow(
       output: {
         schema: ExtractProductsOutputSchema,
       },
-      model: 'googleai/gemini-2.0-flash',
+      model: 'googleai/gemini-1.5-flash-latest',
     });
 
     const output = llmResponse.output;
