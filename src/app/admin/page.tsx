@@ -19,7 +19,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { PlusCircle, Edit, Trash2, Search, ArrowLeft, LogOut, MoreHorizontal, Check, X, WandSparkles } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Search, ArrowLeft, LogOut, MoreHorizontal, Check, X } from 'lucide-react';
 import type { Product, Variant } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
 import { useState, useMemo, useEffect, useCallback } from 'react';
@@ -234,12 +234,6 @@ export default function AdminProductsPage() {
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
                             </div>
-                            <Button asChild variant="outline">
-                                <Link href="/admin/import">
-                                    <WandSparkles className="mr-2 h-4 w-4" />
-                                    Importación IA
-                                </Link>
-                            </Button>
                             <Button asChild>
                                 <Link href="/admin/products/new">
                                     <PlusCircle className="mr-2 h-4 w-4" />
