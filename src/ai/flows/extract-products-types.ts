@@ -17,7 +17,7 @@ export type ExtractProductsInput = z.infer<typeof ExtractProductsInputSchema>;
 const ExtractedProductSchema = z.object({
     name: z.string().describe('El nombre del producto.'),
     price: z.number().describe('El precio del producto.'),
-    description: z.string().describe('Una breve descripción del producto.'),
+    quantity: z.number().optional().describe('La cantidad de unidades por paquete. Ej: 24.'),
     isNew: z.boolean().describe('Se establece en true si es un producto nuevo, false si ya existe y solo se actualiza el precio.'),
 });
 

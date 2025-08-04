@@ -47,7 +47,8 @@ const extractProductsFlow = ai.defineFlow(
       prompt: `
         Eres un asistente de gestión de catálogos experto.
         Tu tarea es analizar el siguiente documento PDF, que es un catálogo de productos.
-        Debes extraer cada producto que encuentres con su nombre, precio y una breve descripción.
+        Debes extraer cada producto que encuentres con su nombre, precio y cantidad de unidades. NADA MÁS.
+        Por ejemplo, si ves un producto llamado "Melbourne" con un precio de "$1292.10" y una etiqueta "x24u", debes extraer: name: "Melbourne", price: 1292.10, quantity: 24.
 
         Aquí tienes una lista de productos que ya existen en la base de datos:
         ${existingProductsJson}
@@ -56,7 +57,7 @@ const extractProductsFlow = ai.defineFlow(
         - Si el nombre del producto del PDF coincide con uno existente, marca 'isNew' como 'false'.
         - Si el producto del PDF no está en la lista de existentes, marca 'isNew' como 'true'.
 
-        Ignora cualquier texto que no sea una descripción de producto (índices, portadas, etc.).
+        Ignora cualquier texto que no sea un nombre de producto, precio o cantidad (índices, portadas, descripciones largas, etc.).
         Proporciona el resultado en el formato JSON especificado.
 
         Documento a analizar:
