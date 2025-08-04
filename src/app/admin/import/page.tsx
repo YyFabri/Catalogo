@@ -10,13 +10,9 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Loader2, UploadCloud, WandSparkles, AlertTriangle, CheckCircle2, FileText } from 'lucide-react';
 import { extractProductsFromPdf } from '@/ai/flows/extract-products-flow';
+import type { ExtractProductsOutput } from '@/ai/flows/extract-products-types';
 
-type ExtractedProduct = {
-  name: string;
-  price: number;
-  description: string;
-  isNew: boolean;
-};
+type ExtractedProduct = ExtractProductsOutput['products'][0];
 
 export default function ImportPage() {
   const [file, setFile] = useState<File | null>(null);

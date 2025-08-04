@@ -4,38 +4,18 @@
  * @fileOverview Flujo de IA para extraer productos de un archivo PDF.
  *
  * - extractProductsFromPdf - Procesa un PDF para extraer información de productos.
- * - ExtractProductsInput - El tipo de entrada para la función.
- * - ExtractProductsOutput - El tipo de salida de la función.
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'zod';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { 
+  ExtractProductsInputSchema, 
+  ExtractProductsOutputSchema,
+  type ExtractProductsInput,
+  type ExtractProductsOutput
+} from './extract-products-types';
 
-// Esquema de entrada: un PDF como data URI.
-export const ExtractProductsInputSchema = z.object({
-  pdfDataUri: z
-    .string()
-    .describe(
-      "Un archivo PDF codificado como data URI. Formato esperado: 'data:application/pdf;base64,<encoded_data>'."
-    ),
-});
-export type ExtractProductsInput = z.infer<typeof ExtractProductsInputSchema>;
-
-// Esquema para un solo producto extraído.
-const ExtractedProductSchema = z.object({
-    name: z.string().describe('El nombre del producto.'),
-    price: z.number().describe('El precio del producto.'),
-    description: z.string().describe('Una breve descripción del producto.'),
-    isNew: z.boolean().describe('Se establece en true si es un producto nuevo, false si ya existe y solo se actualiza el precio.'),
-});
-
-// Esquema de salida: una lista de productos extraídos.
-export const ExtractProductsOutputSchema = z.object({
-  products: z.array(ExtractedProductSchema),
-});
-export type ExtractProductsOutput = z.infer<typeof ExtractProductsOutputSchema>;
 
 // Función principal exportada que será llamada desde el frontend.
 export async function extractProductsFromPdf(
@@ -86,6 +66,7 @@ const extractProductsFlow = ai.defineFlow(
       output: {
         schema: ExtractProductsOutputSchema,
       },
+      model: 'googleai/gemini-2.0-flash',
     });
 
     const output = llmResponse.output();
