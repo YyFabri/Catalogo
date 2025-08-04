@@ -70,7 +70,7 @@ const extractProductsFlow = ai.defineFlow(
       model: 'googleai/gemini-2.0-flash',
     });
 
-    const output = llmResponse.output();
+    const output = llmResponse.output;
     if (!output) {
       throw new Error("La IA no pudo procesar el documento.");
     }
