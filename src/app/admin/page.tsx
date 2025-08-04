@@ -19,7 +19,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { PlusCircle, Edit, Trash2, Search, ArrowLeft, LogOut, MoreHorizontal, Check, X } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Search, ArrowLeft, LogOut, MoreHorizontal, Check, X, WandSparkles } from 'lucide-react';
 import type { Product, Variant } from '@/lib/types';
 import { toast } from '@/hooks/use-toast';
 import { useState, useMemo, useEffect, useCallback } from 'react';
@@ -223,8 +223,8 @@ export default function AdminProductsPage() {
                             <CardTitle>Gestión de Productos</CardTitle>
                             <CardDescription>Visualiza, añade, edita o elimina tus productos.</CardDescription>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <div className="relative w-full sm:max-w-xs">
+                        <div className="flex flex-wrap items-center gap-2">
+                            <div className="relative w-full sm:w-auto sm:flex-grow">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                                 <Input
                                     type="search"
@@ -234,6 +234,12 @@ export default function AdminProductsPage() {
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
                             </div>
+                            <Button asChild variant="outline">
+                                <Link href="/admin/import">
+                                    <WandSparkles className="mr-2 h-4 w-4" />
+                                    Importación IA
+                                </Link>
+                            </Button>
                             <Button asChild>
                                 <Link href="/admin/products/new">
                                     <PlusCircle className="mr-2 h-4 w-4" />
