@@ -54,11 +54,18 @@ const ProductCard = ({ product, onSelect }: { product: Product; onSelect: (produ
           data-ai-hint={product.imageHint}
         />
         <Badge variant="secondary" className="absolute top-2 left-2">{product.category}</Badge>
-        {product.quantity && (
-          <div className="absolute top-2 right-2 flex items-center justify-center min-w-[3rem] h-12 px-2 bg-gray-700/80 rounded-full">
-            <span className="text-white font-bold text-sm">{product.quantity}</span>
-          </div>
-        )}
+        <div className="absolute top-2 right-2 flex items-center gap-1">
+          {product.unitDescription && (
+            <Badge className="bg-gray-700/80 text-white font-bold text-sm">
+              {product.unitDescription}
+            </Badge>
+          )}
+          {product.weight && (
+             <Badge className="bg-gray-700/80 text-white font-bold text-sm">
+              {product.weight}
+            </Badge>
+          )}
+        </div>
       </div>
       <CardHeader>
         <CardTitle className="text-xl">{product.name}</CardTitle>

@@ -18,7 +18,8 @@ export default function NewProductPage() {
     try {
       await addDoc(collection(db, 'products'), {
           ...data,
-          quantity: data.quantity || '',
+          unitDescription: data.unitDescription || '',
+          weight: data.weight || '',
           imageHint: data.name.split(' ').slice(0, 2).join(' ').toLowerCase(),
       });
       toast({

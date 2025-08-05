@@ -10,7 +10,8 @@ export interface Product {
   price: number;
   imageUrl: string;
   category: string;
-  quantity?: string;
+  unitDescription?: string;
+  weight?: string;
   imageHint?: string;
   description?: string;
   inStock?: boolean;

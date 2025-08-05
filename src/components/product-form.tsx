@@ -28,7 +28,8 @@ const formSchema = z.object({
   name: z.string().min(2, { message: 'El nombre debe tener al menos 2 caracteres.' }),
   description: z.string().optional(),
   price: z.coerce.number().positive({ message: 'El precio debe ser un número positivo.' }),
-  quantity: z.string().optional(),
+  unitDescription: z.string().optional(),
+  weight: z.string().optional(),
   imageUrl: z.string().url({ message: 'Por favor, sube una imagen válida.' }),
   category: z.string().min(2, { message: 'La categoría debe tener al menos 2 caracteres.' }),
   inStock: z.boolean().default(false),
@@ -54,7 +55,8 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
       name: initialData?.name || '',
       description: initialData?.description || '',
       price: initialData?.price || 0,
-      quantity: initialData?.quantity || '',
+      unitDescription: initialData?.unitDescription || '',
+      weight: initialData?.weight || '',
       imageUrl: initialData?.imageUrl || '',
       category: initialData?.category || '',
       inStock: initialData?.inStock || false,
@@ -188,14 +190,28 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
-                  name="quantity"
+                  name="unitDescription"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Descripción de Unidad/Cantidad</FormLabel>
                       <FormControl>
-                        <Input type="text" placeholder="Ej: x24u, 500g, etc." {...field} />
+                        <Input type="text" placeholder="Ej: x24u, Pack de 6, etc." {...field} />
                       </FormControl>
-                      <FormDescription>Dejar vacío si se vende por unidad.</FormDescription>
+                      <FormDescription>Se mostrará en una insignia sobre el producto.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="weight"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Peso (Opcional)</FormLabel>
+                      <FormControl>
+                        <Input type="text" placeholder="Ej: 500g, 1kg, etc." {...field} />
+                      </FormControl>
+                      <FormDescription>Se mostrará junto a la otra descripción.</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
