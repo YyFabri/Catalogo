@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Upload, FileText, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
 import type { Product } from '@/lib/types';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, getDocs, query, where, writeBatch } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, where, writeBatch, doc } from 'firebase/firestore';
 import { Badge } from '@/components/ui/badge';
 
 type CsvProduct = Omit<Product, 'id' | 'imageUrl' | 'variants' | 'inStock'>;
@@ -62,6 +62,8 @@ export default function ImportPage() {
             const productsData: CsvProduct[] = [];
             for (let i = 1; i < lines.length; i++) {
                 const values = lines[i].split(',').map(v => v.trim());
+                if(values.length < headers.length) continue; // Skip empty or malformed lines
+
                 const productObj: any = {};
                 headers.forEach((header, index) => {
                     productObj[header] = values[index] || '';
@@ -87,13 +89,17 @@ export default function ImportPage() {
     const checkExistingProducts = async (products: CsvProduct[]) => {
         const productNames = products.map(p => p.name);
         const existingProducts: (Product & {id: string})[] = [];
+        const CHUNK_SIZE = 30; // Firestore 'in' query limit
 
         if (productNames.length > 0) {
-            const q = query(collection(db, 'products'), where('name', 'in', productNames));
-            const querySnapshot = await getDocs(q);
-            querySnapshot.forEach(doc => {
-                existingProducts.push({ id: doc.id, ...doc.data() } as Product & {id: string});
-            });
+            for (let i = 0; i < productNames.length; i += CHUNK_SIZE) {
+                const chunk = productNames.slice(i, i + CHUNK_SIZE);
+                const q = query(collection(db, 'products'), where('name', 'in', chunk));
+                const querySnapshot = await getDocs(q);
+                querySnapshot.forEach(doc => {
+                    existingProducts.push({ id: doc.id, ...doc.data() } as Product & {id: string});
+                });
+            }
         }
         
         const productsWithStatus = products.map(p => {
@@ -116,65 +122,46 @@ export default function ImportPage() {
         let updateCount = 0;
 
         productsToImport.forEach(product => {
+            const productData = {
+                name: product.name,
+                price: Number(product.price),
+                category: product.category,
+                description: product.description || '',
+                unitDescription: product.unitDescription || '',
+                weight: product.weight || '',
+                imageUrl: `https://placehold.co/600x400.png`,
+                imageHint: product.name.split(' ').slice(0, 2).join(' ').toLowerCase(),
+                variants: [],
+                inStock: true,
+            };
+
             if (product.status === 'new') {
-                const newProductRef = collection(db, 'products');
-                batch.set(addDoc(newProductRef).id as any, {
-                    ...product,
-                    price: Number(product.price),
-                    imageUrl: `https://placehold.co/600x400.png`,
-                    imageHint: product.name.split(' ').slice(0, 2).join(' ').toLowerCase(),
-                    variants: [],
-                    inStock: true,
-                });
+                const newProductRef = doc(collection(db, 'products'));
+                batch.set(newProductRef, productData);
                 newCount++;
             } else if (product.status === 'update' && product.existingId) {
-                const productRef = collection(db, 'products');
-                // This is a simplification. For a real app, you would use doc(db, 'products', product.existingId)
-                // However, writeBatch works with document references, so we'll simulate for now.
-                // In a real scenario, you'd use doc(db, 'products', product.existingId)
-                // For the purpose of this example, we cannot create a DocumentReference on the client without the ID.
-                // This part of the logic is illustrative.
-                // A more robust solution would involve a server-side function.
-                console.warn("Batch updates require document references. This part is illustrative.");
-                toast({ variant: 'destructive', title: 'Actualización no implementada', description: 'La actualización en lote no está completamente implementada en este ejemplo.'});
+                const productRef = doc(db, 'products', product.existingId);
+                // We only update the price for existing products as planned
+                batch.update(productRef, { price: productData.price });
+                updateCount++;
             }
         });
         
-        // This is a workaround for the batch update limitation on client.
-        // We will only handle new products for now.
-        const newProducts = productsToImport.filter(p => p.status === 'new');
         try {
-            for(const product of newProducts) {
-                await addDoc(collection(db, 'products'), {
-                    name: product.name,
-                    price: Number(product.price),
-                    category: product.category,
-                    description: product.description,
-                    unitDescription: product.unitDescription,
-                    weight: product.weight,
-                    imageUrl: `https://placehold.co/600x400.png`,
-                    imageHint: product.name.split(' ').slice(0, 2).join(' ').toLowerCase(),
-                    variants: [],
-                    inStock: true,
-                });
-                newCount++;
-            }
+            await batch.commit();
             
-            const updatedProducts = productsToImport.filter(p => p.status === 'update');
-            if (updatedProducts.length > 0) {
-                 toast({ title: 'Productos para actualizar', description: `${updatedProducts.length} productos ya existen y no fueron actualizados. Esta función se implementará.`});
-            }
-            
-            if(newCount > 0){
+            if(newCount > 0 || updateCount > 0){
                 toast({
                     title: '¡Importación Exitosa!',
-                    description: `Se han creado ${newCount} nuevos productos en tu catálogo.`,
+                    description: `Se crearon ${newCount} productos y se actualizaron ${updateCount}.`,
                 });
+            } else {
+                 toast({ title: 'Sin cambios', description: `No se necesitaron crear o actualizar productos.`});
             }
             router.push('/admin');
 
         } catch (e) {
-             console.error("Error adding document: ", e);
+             console.error("Error committing batch: ", e);
              toast({ variant: 'destructive', title: 'Error', description: 'Hubo un problema al importar los productos.'});
         } finally {
             setIsImporting(false);
@@ -194,7 +181,7 @@ export default function ImportPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Importar Productos desde CSV</CardTitle>
-                    <CardDescription>Sube un archivo CSV para añadir o actualizar productos masivamente. El archivo debe contener las columnas: `name`, `price`, `category`. Opcionales: `description`, `unitDescription`, `weight`.</CardDescription>
+                    <CardDescription>Sube un archivo CSV para añadir o actualizar productos masivamente. El archivo debe contener las columnas requeridas: `name`, `price`, `category`. Opcionales: `description`, `unitDescription`, `weight`.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 border-2 border-dashed rounded-lg">
