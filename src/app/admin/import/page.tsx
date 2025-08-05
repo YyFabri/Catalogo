@@ -200,7 +200,7 @@ export default function ImportPage() {
                     {productsToImport.length > 0 && (
                         <div>
                             <h3 className="text-lg font-medium mb-2">Vista Previa de la Importación</h3>
-                            <p className="text-sm text-muted-foreground mb-4">Se encontraron {productsToImport.length} productos en el archivo. Revisa los cambios antes de confirmar.</p>
+                            <div className="text-sm text-muted-foreground mb-4">Se encontraron {productsToImport.length} productos en el archivo. Revisa los cambios antes de confirmar.</div>
                             <div className="max-h-64 overflow-y-auto rounded-md border">
                                 <ul className="divide-y">
                                     {productsToImport.map((product, index) => (
@@ -208,7 +208,10 @@ export default function ImportPage() {
                                            <div className="flex items-center gap-3">
                                                 {product.status === 'new' ? <CheckCircle className="h-5 w-5 text-green-500" /> : <AlertTriangle className="h-5 w-5 text-yellow-500" />}
                                                 <div>
-                                                    <p className="font-medium">{product.name} <Badge variant={product.status === 'new' ? 'default' : 'secondary'}>{product.status === 'new' ? 'Nuevo' : 'Actualizar'}</Badge></p>
+                                                    <div className="font-medium">
+                                                        <span>{product.name} </span>
+                                                        <Badge variant={product.status === 'new' ? 'default' : 'secondary'}>{product.status === 'new' ? 'Nuevo' : 'Actualizar'}</Badge>
+                                                    </div>
                                                     <p className="text-sm text-muted-foreground">${Number(product.price).toFixed(2)} - {product.category}</p>
                                                 </div>
                                            </div>
