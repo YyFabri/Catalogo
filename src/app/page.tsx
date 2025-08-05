@@ -55,8 +55,8 @@ const ProductCard = ({ product, onSelect }: { product: Product; onSelect: (produ
         />
         <Badge variant="secondary" className="absolute top-2 left-2">{product.category}</Badge>
         {product.quantity && (
-          <div className="absolute top-2 right-2 flex items-center justify-center w-12 h-12 bg-gray-700/80 rounded-full">
-            <span className="text-white font-bold text-sm">x{product.quantity}u</span>
+          <div className="absolute top-2 right-2 flex items-center justify-center min-w-[3rem] h-12 px-2 bg-gray-700/80 rounded-full">
+            <span className="text-white font-bold text-sm">{product.quantity}</span>
           </div>
         )}
       </div>

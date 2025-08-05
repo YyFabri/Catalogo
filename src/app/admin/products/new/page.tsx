@@ -18,6 +18,7 @@ export default function NewProductPage() {
     try {
       await addDoc(collection(db, 'products'), {
           ...data,
+          quantity: data.quantity || '',
           imageHint: data.name.split(' ').slice(0, 2).join(' ').toLowerCase(),
       });
       toast({

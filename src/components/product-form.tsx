@@ -28,7 +28,7 @@ const formSchema = z.object({
   name: z.string().min(2, { message: 'El nombre debe tener al menos 2 caracteres.' }),
   description: z.string().optional(),
   price: z.coerce.number().positive({ message: 'El precio debe ser un número positivo.' }),
-  quantity: z.coerce.number().int().positive({ message: 'La cantidad debe ser un número entero positivo.' }).optional(),
+  quantity: z.string().optional(),
   imageUrl: z.string().url({ message: 'Por favor, sube una imagen válida.' }),
   category: z.string().min(2, { message: 'La categoría debe tener al menos 2 caracteres.' }),
   inStock: z.boolean().default(false),
@@ -54,7 +54,7 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
       name: initialData?.name || '',
       description: initialData?.description || '',
       price: initialData?.price || 0,
-      quantity: initialData?.quantity || undefined,
+      quantity: initialData?.quantity || '',
       imageUrl: initialData?.imageUrl || '',
       category: initialData?.category || '',
       inStock: initialData?.inStock || false,
@@ -191,9 +191,9 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
                   name="quantity"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Unidades por Paquete</FormLabel>
+                      <FormLabel>Descripción de Unidad/Cantidad</FormLabel>
                       <FormControl>
-                        <Input type="number" step="1" placeholder="Ej: 20" {...field} />
+                        <Input type="text" placeholder="Ej: x24u, 500g, etc." {...field} />
                       </FormControl>
                       <FormDescription>Dejar vacío si se vende por unidad.</FormDescription>
                       <FormMessage />

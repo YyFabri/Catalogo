@@ -10,7 +10,7 @@ export interface Product {
   price: number;
   imageUrl: string;
   category: string;
-  quantity?: number;
+  quantity?: string;
   imageHint?: string;
   description?: string;
   inStock?: boolean;
